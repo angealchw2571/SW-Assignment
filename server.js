@@ -1,19 +1,62 @@
+require("dotenv").config();
 const express = require("express");
+const app = express();
+const path = require("path");
+const mysql = require("mysql");
+const session = require("express-session");
+const bcrypt = require("bcrypt");
+const userController = require("./controllers/user_controller");
+const sessionController = require("./controllers/session_controller");
 
-app.use(
-  session({
-    secret: "secret",
-    resave: true,
-    saveUninitialized: true,
-  })
-);
+
+//? =========================    Config    =========================
+
+const PORT = process.env.PORT ?? 3001;
+const connection = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: process.env.MYSQL_PW,
+  database: "sw_assignment_db",
+});
+
+connection.connect(function (err) {
+  if (err) console.log(err);
+  else console.log("connected to local mysql");
+});
+
+//? =========================    Middleware    =========================
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "static")));
+app.use(express.static(path.join(__dirname, "views")));
 
-app.get("/", function (req, res) {
-  // Render login template
-  res.render("index.ejs");
+
+//? =========================    Controllers    =========================
+
+
+app.use("/api/user", userController);
+app.use("/api/session", sessionController);
+
+
+//? =========================    Routes      =========================
+
+
+app.get("/main", function (req, res) {
+  res.render("mainMenu.ejs");
 });
-app.listen(3000);
-cd 
+
+app.get("/login", function (req, res) {
+  res.render("homepageLogin.ejs");
+});
+
+app.get("/new", function (req, res) {
+  res.render("newUser.ejs");
+});
+
+
+
+
+
+app.listen(PORT, () => {
+  console.log(`server app listening at ${PORT}`);
+});
