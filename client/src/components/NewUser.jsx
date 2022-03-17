@@ -1,11 +1,14 @@
 import { React, useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+const PasswordValidation = require("./PasswordValidation");
 
 function NewUser() {
   // const [session, setSession] = useAtom(userSessionAtom);
   const [networkStatus, setNetworkStatus] = useState("pending");
-  const [validPassword, setValidPassword] = useState();
+  const [password1, setPassword1] = useState("");
+  const [password2, setPassword2] = useState("");
+
   let navigate = useNavigate();
 
   const handleQuery = async (data) => {
@@ -15,9 +18,8 @@ function NewUser() {
       .then((res) => {
         if (res) {
           setNetworkStatus("resolved");
-          // setSession(res.data);
           alert("Success!");
-          navigate("/login");
+          navigate("/home");
         }
       })
       .catch(function (error) {
@@ -25,35 +27,63 @@ function NewUser() {
       });
   };
 
+  const rank = PasswordValidation(password1);
+  const labels = ["Too Short", "Weak", "Medium", "Strong", "Very Strong"];
+  const passwordMessage = labels[rank];
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const username = event.target.username.value;
-    const password = event.target.password.value;
     const email = event.target.email.value;
-    handleQuery({ username: username, password: password, email: email });
+
+    if (
+      username.length === 0 ||
+      password1.length === 0 ||
+      email.length === 0 ||
+      password2.length === 0
+    ) {
+      alert("Please do not leave empty fields.");
+    } else if (rank < 3) {
+      alert("Password do not meet the requirements");
+    } else if (password1 === password2 && rank === 3) {
+      handleQuery({ username: username, password: password1, email: email });
+    } else {
+      alert("Please check your password again");
+    }
+
   };
 
-  const validation = (event) => {
-    console.log(">>>>>>>>>>", event.target.value);
-    setValidPassword(event.target.value);
+  const handlePassword1 = (event) => {
+    setPassword1(event.target.value);
   };
-
-  const message = () => {
-    if (validPassword.length < 8) {
-      return <h1> too short</h1>;
-    } else return <h1> good</h1>;
+  const handlePassword2 = (event) => {
+    setPassword2(event.target.value);
   };
 
   return (
     <>
       <h1>NewUser</h1>
       <form onSubmit={handleSubmit}>
-        <input name="username" placeholder="Username" />
-        <input name="password" placeholder="Password" onChange={validation} />
+        <input name="username" placeholder="Username" /> <br />
+        <input
+          name="password1"
+          placeholder="Password"
+          onChange={handlePassword1}
+          maxLength={10}
+        />
+        <input
+          name="password2"
+          placeholder="Reconfirm Password"
+          maxLength="10"
+          onChange={handlePassword2}
+        />
+        <br />
         <input name="email" placeholder="Email" />
+        <p />
         <button>Create New User</button>
       </form>
-      {message()}
+      {password1.length === 0 ? null : passwordMessage}
+
       <p />
       <Link to="/users">
         <button>Home</button>

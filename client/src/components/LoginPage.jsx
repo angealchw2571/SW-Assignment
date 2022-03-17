@@ -17,6 +17,7 @@ function LoginPage() {
       .then((res) => {
         if (res) {
           setNetworkStatus("resolved");
+          delete res.data.password
           setSession(res.data);
           alert("Success!")
           navigate('/home')

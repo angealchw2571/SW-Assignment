@@ -1,23 +1,23 @@
 import { React, useState } from "react";
 import axios from "axios";
-import { useAtom } from "jotai";
-import { userSessionAtom } from "./LoginPage";
-import { useNavigate, Link } from "react-router-dom";
+// import { useAtom } from "jotai";
+// import { userSessionAtom } from "./LoginPage";
+import { useNavigate, Link, useParams } from "react-router-dom";
+
 
 function Email() {
-  const sessionData = useAtom(userSessionAtom)[0];
   let navigate = useNavigate();
-  const [networkStatus, setNetworkStatus] = useState("pending");
   const [newEmail1, setNewEmail1] = useState("");
   const [newEmail2, setNewEmail2] = useState("");
   const [errMessage, setErrMessage] = useState();
+  const { id } = useParams();
+
 
   const handleQuery = async (data) => {
     await axios
-      .put(`/api/user/edit/email/${sessionData.user_id}`, data)
+      .put(`/api/user/edit/email/${id}`, data)
       .then((res) => {
         if (res) {
-          setNetworkStatus("resolved");
           alert("Success!");
           navigate('/home')
         }

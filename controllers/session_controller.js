@@ -22,9 +22,12 @@ router.post("/login", async function (req, res) {
       if (result[0]) {
         bcrypt.compare(password, dbPassword, function (err, result) {
           if (result) {
+            req.session.loginUser = data
+            req.session.role = data.role
+
+            // console.log(">>>>>>", req.session.role)
             res.status(200).json(data);
           } else {
-            // return res.status(404).json({ message: "Password incorrect" })
             return res.status(404).json({ message: "Password incorrect" })
             ;
           }

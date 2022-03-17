@@ -19,7 +19,6 @@ function Home() {
         setnetworkStatus("loading");
         setUserData(res.data[0]);
         setnetworkStatus("resolved");
-        console.log("homepage res.data", res.data[0]);
       } catch (error) {
         console.log("error", error);
       }
@@ -31,35 +30,48 @@ function Home() {
     navigate(`/users`);
   };
 
-  const test = () => {
-    if (sessionData.user_id === undefined) {
-      return (
-        <p>
-          {" "}
-          Seems like you're not logged in. Please{" "}
-          <Link to="/login">log in</Link>.
-        </p>
-      );
-    } else if (networkStatus === "resolved") {
-      return (
-        <>
+  // const test = () => {
+  //   if (sessionData.user_id === undefined) {
+  //     return (
+  //       <p>
+  //         {" "}
+  //         Seems like you're not logged in. Please{" "}
+  //         <Link to="/login">log in</Link>.
+  //       </p>
+  //     );
+  //   } else if (networkStatus === "resolved") {
+  //     return (
+  //       <>
+  //         <h3>Profile Details</h3>
+  //         <ul>
+  //           <li>Username: {userData.username}</li>
+  //           <li>Email: {userData.email}</li>
+  //           <li>Role: {userData.role}</li>
+  //         </ul>
+          
+  //         {sessionData.role === "admin" ? null : (<button onClick={handleClick}> User Management</button>)}
+          
+  //       </>
+  //     );
+  //   }
+  // };
+
+  return (
+    <>
+      <h1>Home Page</h1>
+
+      {/* {test()} */}
+      {networkStatus === "resolved" ? (<>
           <h3>Profile Details</h3>
           <ul>
             <li>Username: {userData.username}</li>
             <li>Email: {userData.email}</li>
             <li>Role: {userData.role}</li>
           </ul>
-          <button onClick={handleClick}> User Management</button>
-        </>
-      );
-    }
-  };
-
-  return (
-    <>
-      <h1>Home Page</h1>
-
-      {test()}
+          
+          {sessionData.role === "admin" ? (<button onClick={handleClick}> User Management</button>) : null}
+          
+        </>): null} 
     </>
   );
 }

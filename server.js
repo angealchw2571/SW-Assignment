@@ -4,7 +4,6 @@ const app = express();
 const path = require("path");
 const mysql = require("mysql");
 const session = require("express-session");
-const bcrypt = require("bcrypt");
 const userController = require("./controllers/user_controller");
 const sessionController = require("./controllers/session_controller");
 
@@ -29,6 +28,13 @@ connection.connect(function (err) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "views")));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET, //a random string do not copy this value or your stuff will get hacked
+    resave: false, // default more info: https://www.npmjs.com/package/express-session#resave
+    saveUninitialized: false, // default  more info: https://www.npmjs.com/package/express-session#resave
+  })
+);
 
 
 //? =========================    Controllers    =========================
