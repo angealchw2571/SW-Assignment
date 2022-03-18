@@ -64,9 +64,8 @@ router.put("/edit/pass/:id",isAuth([ADMIN]), function (req, res) {
 
 //! ====================         EDIT EMAIL & STATUS        ==============================
 
-router.put("/edit/:ACTION/:ID", isAuth([ADMIN]), function (req, res) {
+router.put("/edit/:ACTION/:ID", function (req, res) {
   const { ID, ACTION } = req.params;
-
   if (ACTION === "email") {
     const newEmail = req.body.email;
     const sqlQuery = `UPDATE users SET email = '${newEmail}' WHERE user_id = '${ID}'`;
@@ -84,6 +83,18 @@ router.put("/edit/:ACTION/:ID", isAuth([ADMIN]), function (req, res) {
       if (err) res.status(400).json({ error: err.message });
       else {
         console.log("Change status success");
+        res.status(200).json(result);
+      }
+    });
+  }
+  else if (ACTION === "reset"){
+    const newPassword = req.body.password
+    const hashNewPassword = bcrypt.hashSync(newPassword, bcrypt.genSaltSync(10));
+    const sqlQuery = `UPDATE users SET password = '${hashNewPassword}' WHERE user_id = '${ID}'`;
+    connection.query(sqlQuery, (err, result) => {
+      if (err) res.status(400).json({ error: err.message });
+      else {
+        console.log("reset password success");
         res.status(200).json(result);
       }
     });

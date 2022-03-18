@@ -41,6 +41,10 @@ function UserManagement() {
   return (
     <>
       <h1> User Management Admin Board</h1>
+      <Link to="/home">
+        <button>Back To Home</button>
+      </Link>
+      <p/>
 
       {sessionData.role === "admin" ? (
         <div>

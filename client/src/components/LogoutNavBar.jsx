@@ -21,7 +21,6 @@ function Logout() {
   return (
     <>
     {sessionData.user_id === undefined ? null: (
-      
       <button style={{float: "right", marginRight:50}} onClick={handleLogout}>Logout</button>
     )}
     </>

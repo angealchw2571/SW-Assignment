@@ -13,6 +13,7 @@ import LogoutNavBar from "./components/LogoutNavBar";
 import { userSessionAtom } from './components/LoginPage';
 import { BrowserRouter } from "react-router-dom";
 import { Route, Routes } from "react-router";
+import ResetPassword from "./components/ResetPassword";
 
 function App() {
   const sessionData = useAtom(userSessionAtom)[0];
@@ -44,6 +45,7 @@ function App() {
           <Route exact path="/profile/edit/status/:id" element={<PrivateRoute><Status /></PrivateRoute>} />
           <Route exact path="/new" element={<PrivateRoute><NewUser /></PrivateRoute>} />
           <Route path="/error" element={<Error />} />
+          <Route exact path="/profile/edit/reset/:id" element={<ResetPassword />} />
         </Routes>
       </div>
     </BrowserRouter>

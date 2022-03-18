@@ -2,8 +2,6 @@ import { React, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-// import { useAtom } from "jotai";
-// import { userSessionAtom } from "./LoginPage";
 const PasswordValidation = require("./PasswordValidation");
 
 

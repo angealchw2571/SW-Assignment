@@ -33,8 +33,6 @@ function Home() {
   return (
     <>
       <h1>Home Page</h1>
-
-      {/* {test()} */}
       {networkStatus === "resolved" ? (<>
           <h3>Profile Details</h3>
           <ul>

@@ -36,6 +36,9 @@ function User() {
     else if (ACTION === "status"){
       navigate(`/profile/edit/status/${userData.user_id}`)
     }
+    else if (ACTION === "resetPassword"){
+      navigate(`/profile/edit/reset/${userData.user_id}`)
+    }
   }
 
 
@@ -52,9 +55,10 @@ function User() {
             Role: {userData.role} <br />
             Active Status: {(userData.status === 1) ? "True": 'False'}
           </div><p/>
-          <button onClick={()=>handleClick('password')}>Change Password</button>
+          {/* <button onClick={()=>handleClick('password')}>Change Password</button> */}
           <button onClick={()=>handleClick('email')}>Change Email</button>
           <button onClick={()=>handleClick('status')}>Change Status</button>
+          <button onClick={()=>handleClick('resetPassword')}>Reset Password</button>
           <p />
       <Link to="/users">
         <button>Back</button>
