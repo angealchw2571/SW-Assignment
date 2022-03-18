@@ -9,7 +9,6 @@ function Email() {
   let navigate = useNavigate();
   const [newEmail1, setNewEmail1] = useState("");
   const [newEmail2, setNewEmail2] = useState("");
-  const [errMessage, setErrMessage] = useState();
   const { id } = useParams();
 
 
@@ -19,7 +18,7 @@ function Email() {
       .then((res) => {
         if (res) {
           alert("Success!");
-          navigate('/home')
+          navigate('/users')
         }
       })
       .catch(function (error) {
@@ -31,13 +30,12 @@ function Email() {
     event.preventDefault();
     const currentEmail = event.target.newEmail2.value;
     if (currentEmail.length === 0) {
-      setErrMessage("Please do not leave empty fields.");
+      alert("Please do not leave empty fields.");
     } else if (newEmail1 === newEmail2) {
-      console.log("success");
       handleQuery({ email: newEmail2 });
+    } else {
+      alert("Please check your email again")
     }
-
-    // handleQuery();
   };
 
   const handleEmail1 = (event) => {
@@ -47,13 +45,6 @@ function Email() {
     setNewEmail2(event.target.value);
   };
 
-  const message = () => {
-    if (newEmail1.length === 0 || newEmail2.length === 0) {
-      return <h1>Please do not leave empty fields.</h1>;
-    } else if (newEmail1 !== newEmail2) {
-      return <h1>Emails do not match</h1>;
-    } else return <h1>Emails match</h1>;
-  };
 
   return (
     <>
@@ -74,10 +65,8 @@ function Email() {
         <br />
         <button>Submit</button>
       </form>
-      {errMessage}
-      {message()}
       <p/>
-    <Link to='/users'><button>Home</button></Link>
+    <Link to='/users'><button>Back</button></Link>
 
     </>
   );

@@ -1,7 +1,7 @@
 import { React, useEffect, useState } from "react";
 // import { useAtom } from "jotai";
 // import { userSessionAtom } from "./LoginPage";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import axios from "axios";
 
 function User() {
@@ -55,6 +55,10 @@ function User() {
           <button onClick={()=>handleClick('password')}>Change Password</button>
           <button onClick={()=>handleClick('email')}>Change Email</button>
           <button onClick={()=>handleClick('status')}>Change Status</button>
+          <p />
+      <Link to="/users">
+        <button>Back</button>
+      </Link>
         </>
       ) : null}
     </>

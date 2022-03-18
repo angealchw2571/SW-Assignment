@@ -9,6 +9,7 @@ import User from "./components/User";
 import NewUser from "./components/NewUser";
 import Error from "./components/Error";
 import Status from "./components/Status";
+import LogoutNavBar from "./components/LogoutNavBar";
 import { userSessionAtom } from './components/LoginPage';
 import { BrowserRouter } from "react-router-dom";
 import { Route, Routes } from "react-router";
@@ -30,7 +31,10 @@ function App() {
   return (
     <BrowserRouter>
       <div className="App">
+        <LogoutNavBar />
         <Routes>
+        {/* <Redirect from="/" to="/home" /> */}
+        <Route exact path="/" element={<Navigate replace to="/login" />} />
           <Route exact path="/login" element={<LoginPage />} />
           <Route exact path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
           <Route exact path="/users" element={<PrivateRoute><UserManagement /></PrivateRoute>} />

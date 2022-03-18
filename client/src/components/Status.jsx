@@ -13,7 +13,7 @@ const handleQuery = async (data) => {
       .put(`/api/user/edit/status/${id}`, data)
       .then((res) => {
         if (res) {
-          alert("success!");
+          alert("Success!");
           navigate("/users");
         }
       })

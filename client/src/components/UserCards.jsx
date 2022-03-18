@@ -6,7 +6,7 @@ function UserCards({
   handleClickProfile,
   setUserListData,
   setRefresh,
-  refresh,
+  refresh
 }) {
   const SUPERUSER = "superuser";
   const ADMIN = "admin";
@@ -29,23 +29,22 @@ function UserCards({
     }
     
   }
-
+const buttonStyle = {margin: 10}
 
   
   return (
     <>
-    {/* {()=>setUserListData(result)} */}
-    <button onClick={()=>clickHandler(ADMIN)}>Admin</button>
-    <button onClick={()=>clickHandler(USER)}>User</button>
-    <button onClick={()=>clickHandler(SUPERUSER)}>SuperUser</button>
-    <button onClick={clickRefresh}>All</button>
+    <button style ={buttonStyle} onClick={()=>clickHandler(ADMIN)}>Admin</button>
+    <button style ={buttonStyle} onClick={()=>clickHandler(USER)}>User</button>
+    <button style ={buttonStyle} onClick={()=>clickHandler(SUPERUSER)}>SuperUser</button>
+    <button style ={buttonStyle} onClick={clickRefresh}>All</button>
 
       <ul>
         {userListData.map((e) => {
           return (
             <div
               key={e.user_id}
-              style={{ border: "2px solid red", width: 200, margin: 15 }}
+              style={{ border: "2px solid red", width: 200, margin: 15 , textAlign: "center"}}
               onClick={() => handleClickProfile(e.user_id)}
             >
               <div>UserID: {e.user_id}</div>
@@ -53,7 +52,7 @@ function UserCards({
               <br />
               Email: {e.email} <br />
               Role: {e.role} <br />
-              Active Status: {e.status === 1 ? "True" : "False"} <p />
+              Active Status: {e.status === 1 ? "Active" : "Inactive"} <p />
             </div>
           );
         })}

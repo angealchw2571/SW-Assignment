@@ -12,7 +12,7 @@ const connection = mysql.createConnection({
 
 //! ==========================         LOGIN        ==============================
 
-router.post("/login", async function (req, res) {
+router.post("/login", function (req, res) {
   const { username, password } = req.body;
   connection.query(
     `SELECT * FROM users WHERE username= '${username}';`,
@@ -24,8 +24,6 @@ router.post("/login", async function (req, res) {
           if (result) {
             req.session.loginUser = data
             req.session.role = data.role
-
-            // console.log(">>>>>>", req.session.role)
             res.status(200).json(data);
           } else {
             return res.status(404).json({ message: "Password incorrect" })
@@ -39,6 +37,14 @@ router.post("/login", async function (req, res) {
       } else console.log("error", err);
     }
   );
+});
+
+//! ==========================         LOGOUT        ==============================
+
+router.delete("/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.status(200).json({ message: "session destroyed" });
+  });
 });
 
 module.exports = router;

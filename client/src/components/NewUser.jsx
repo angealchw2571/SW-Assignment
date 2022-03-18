@@ -19,7 +19,7 @@ function NewUser() {
         if (res) {
           setNetworkStatus("resolved");
           alert("Success!");
-          navigate("/home");
+          navigate("/users");
         }
       })
       .catch(function (error) {

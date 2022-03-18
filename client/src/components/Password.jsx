@@ -18,11 +18,12 @@ function Password() {
       .put(`/api/user/edit/pass/${id}`, data)
       .then((res) => {
         if (res) {
-          alert("success!");
+          alert("Successfully Changed Password");
           navigate("/home");
         }
       })
       .catch(function (error) {
+        alert(error.response.data.message)
         console.log(error);
       });
   };
@@ -43,8 +44,7 @@ function Password() {
     } else if (rank < 3) {
       alert("Password do not meet the requirements");
     } else if (password1 === password2 && rank === 3) {
-      alert("Success!");
-      handleQuery({ password: password2 });
+      handleQuery({currentPassword: currentPassword, password: password2 });
     } else {
       alert("Please check your password again");
     }
@@ -82,7 +82,7 @@ function Password() {
       {passwordMessage}
       <p />
       <Link to="/users">
-        <button>Home</button>
+        <button>Back</button>
       </Link>
     </>
   );

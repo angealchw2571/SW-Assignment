@@ -13,6 +13,7 @@ function UserManagement() {
   let navigate = useNavigate();
 
   useEffect(() => {
+    setnetworkStatus("loading");
     const getData = async () => {
       try {
         const res = await axios.get(`/api/user/`);
@@ -39,7 +40,7 @@ function UserManagement() {
 
   return (
     <>
-      <h1> User Management</h1>
+      <h1> User Management Admin Board</h1>
 
       {sessionData.role === "admin" ? (
         <div>
@@ -63,28 +64,7 @@ function UserManagement() {
           setRefresh = {setRefresh}
           refresh = {refresh}
         />
-      ) : null}
-
-      {/* {networkStatus === "resolved" ? (
-        <ul>
-          {userListData.map((e) => {
-            return (
-              <div
-                key={e.user_id}
-                style={{ border: "2px solid red", width: 200, margin: 15 }}
-                onClick={() => handleClickProfile(e.user_id)}
-              >
-                <div>UserID: {e.user_id}</div>
-                Username: {e.username}
-                <br />
-                Email: {e.email} <br />
-                Role: {e.role} <br />
-                Active Status: {(e.status === 1) ? "True": 'False'} <p />
-              </div>
-            );
-          })}
-        </ul>
-      ) : null} */}
+      ) : (<h3>Loading</h3>)}
       <br />
     </>
   );

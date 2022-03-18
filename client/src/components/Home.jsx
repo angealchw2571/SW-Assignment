@@ -1,6 +1,6 @@
 import { React, useEffect, useState } from "react";
 import { useAtom } from "jotai";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { userSessionAtom } from "./LoginPage";
 import axios from "axios";
 
@@ -30,32 +30,6 @@ function Home() {
     navigate(`/users`);
   };
 
-  // const test = () => {
-  //   if (sessionData.user_id === undefined) {
-  //     return (
-  //       <p>
-  //         {" "}
-  //         Seems like you're not logged in. Please{" "}
-  //         <Link to="/login">log in</Link>.
-  //       </p>
-  //     );
-  //   } else if (networkStatus === "resolved") {
-  //     return (
-  //       <>
-  //         <h3>Profile Details</h3>
-  //         <ul>
-  //           <li>Username: {userData.username}</li>
-  //           <li>Email: {userData.email}</li>
-  //           <li>Role: {userData.role}</li>
-  //         </ul>
-          
-  //         {sessionData.role === "admin" ? null : (<button onClick={handleClick}> User Management</button>)}
-          
-  //       </>
-  //     );
-  //   }
-  // };
-
   return (
     <>
       <h1>Home Page</h1>
@@ -67,6 +41,7 @@ function Home() {
             <li>Username: {userData.username}</li>
             <li>Email: {userData.email}</li>
             <li>Role: {userData.role}</li>
+            <li>Status: {userData.status === 1 ? "Active" : "Inactive"}</li>
           </ul>
           
           {sessionData.role === "admin" ? (<button onClick={handleClick}> User Management</button>) : null}
