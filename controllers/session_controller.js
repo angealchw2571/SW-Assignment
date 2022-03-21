@@ -1,42 +1,28 @@
 const express = require("express");
 const router = express.Router();
-const bcrypt = require("bcrypt");
-const mysql = require("mysql");
-
-const connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: process.env.MYSQL_PW,
-  database: "sw_assignment_db",
-});
+const USERC = require("../libs/userControllerLibs.js");
 
 //! ==========================         LOGIN        ==============================
 
-router.post("/login", function (req, res) {
+router.post("/login", async function (req, res) {
   const { username, password } = req.body;
-  connection.query(
-    `SELECT * FROM users WHERE username= '${username}';`,
-    (err, result) => {
-      const data = result[0]
-      const dbPassword = result[0]?.password;
-      if (result[0]) {
-        bcrypt.compare(password, dbPassword, function (err, result) {
-          if (result) {
-            req.session.loginUser = data
-            req.session.role = data.role
-            res.status(200).json(data);
-          } else {
-            return res.status(404).json({ message: "Password incorrect" })
-            ;
-          }
-        });
-      } else if (result[0] === undefined) {
-        res
-          .status(404)
-          .json({ message: "User not found. Please check again." });
-      } else console.log("error", err);
+
+  try {
+    const result = await USERC.FindUserData(username);
+    console.log("resultttt", result);
+    if (result) {
+      const userData = await USERC.CheckPassword(username, password)
+      .then((result) => USERC.FindUserData(username));
+      req.session.loginUser = userData
+      req.session.role = userData.role
+      res.status(200).json(userData);
+    } else if (result[0] === undefined) {
+      res.status(400).json({ message: "user not found" });
     }
-  );
+  } catch (err) {
+    console.log("err", err)
+    res.status(404).json({ message: "password incorrect" });
+  }
 });
 
 //! ==========================         LOGOUT        ==============================
