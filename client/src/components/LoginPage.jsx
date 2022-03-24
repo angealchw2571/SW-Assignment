@@ -17,7 +17,6 @@ function LoginPage() {
       .then((res) => {
         if (res) {
           setNetworkStatus("resolved");
-          delete res.data.password
           setSession(res.data);
           alert("Success!")
           navigate('/home')
@@ -41,7 +40,7 @@ function LoginPage() {
         <h1>Login page</h1>
         <form onSubmit={handleSubmit}>
           <input name="username" placeholder="username" />
-          <input name="password" placeholder="Password" type="password" />
+          <input name="password" placeholder="Password"/>
           <button>Login</button>
         </form>
       </div>

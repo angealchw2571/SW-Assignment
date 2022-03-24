@@ -1,40 +1,57 @@
-import { React, useEffect, useState } from "react";
+import { React, useState } from "react";
 import { useAtom } from "jotai";
 import { userSessionAtom } from "./LoginPage";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
+import Table from "./Table";
 import axios from "axios";
-import UserCards from "./UserCards";
 
 function UserManagement() {
   const sessionData = useAtom(userSessionAtom)[0];
-  const [networkStatus, setnetworkStatus] = useState("pending");
-  const [userListData, setUserListData] = useState();
-  const [refresh, setRefresh] = useState(true);
-  let navigate = useNavigate();
+  const [networkStatus, setNetworkStatus] = useState("pending");
+  const [userData, setUserData] = useState();
+  const SUPERUSER = "superuser";
+  const ADMIN = "admin";
+  const USER = "user";
+  const ALL = "ALL";
 
-  useEffect(() => {
-    setnetworkStatus("loading");
-    const getData = async () => {
-      try {
-        const res = await axios.get(`/api/user/`);
-        setnetworkStatus("loading");
-        setUserListData(res.data);
-        setnetworkStatus("resolved");
-      } catch (error) {
-        console.log("error", error);
+  const handleQuery = async (role_name) => {
+    const url = () => {
+      if (role_name === '0') {
+        const url = "/api/user/";
+        return url;
+      } else {
+        const url = `/api/user/checkgroup/${role_name}`;
+        return url;
       }
     };
-    getData();
-  }, [refresh]);
 
-  const handleClickProfile = (user_id) => {
-    navigate(`/user/${user_id}`);
+    console.log("url", url());
+    setNetworkStatus("pending")
+
+    await axios
+      .get(url())
+      .then((res) => {
+        if (res) {
+          console.log("res.data", res.data);
+          setUserData(res.data);
+          setNetworkStatus("resolved");
+        }
+      })
+      .catch(function (error) {
+        alert(error.response.data.message);
+        console.log(error);
+      });
   };
-  const handleClick = (user_id, ACTION) => {
-    if (ACTION === "PASSWORD") {
-      navigate(`/profile/edit/pass/${user_id}`);
-    } else if (ACTION === "EMAIL") {
-      navigate(`/profile/edit/email/${user_id}`);
+
+  const handleClick = (ACTION) => {
+    if (ACTION === ALL) {
+      handleQuery('0');
+    } else if (ACTION === ADMIN) {
+      handleQuery(ADMIN);
+    } else if (ACTION === SUPERUSER) {
+      handleQuery(SUPERUSER);
+    } else if (ACTION === USER) {
+      handleQuery(USER);
     }
   };
 
@@ -44,31 +61,24 @@ function UserManagement() {
       <Link to="/home">
         <button>Back To Home</button>
       </Link>
-      <p/>
-
-      {sessionData.role === "admin" ? (
-        <div>
-          <button onClick={() => handleClick(sessionData.user_id, "PASSWORD")}>
-            Change Own Password
-          </button>
-          <button onClick={() => handleClick(sessionData.user_id, "EMAIL")}>
-            Change Own Email
-          </button>
+      {sessionData.role_name === "admin" ? (
+        <span>
           <Link to="/new">
             <button>Create New User</button>
           </Link>
-        </div>
+        </span>
+      ) : null}
+        <p />
+        <button onClick={() => handleClick(ALL)}>Fetch all users</button>
+        <button onClick={() => handleClick(ADMIN)}>Fetch Admins</button>
+        <button onClick={() => handleClick(SUPERUSER)}>Fetch Superusers</button>
+        <button onClick={() => handleClick(USER)}>Fetch Users</button>
+        <p />
+      {networkStatus === "resolved" ? (
+        <Table userData={userData} />
       ) : null}
 
-      {networkStatus === "resolved" ? (
-        <UserCards
-          userListData={userListData}
-          handleClickProfile={handleClickProfile}
-          setUserListData= {setUserListData}
-          setRefresh = {setRefresh}
-          refresh = {refresh}
-        />
-      ) : (<h3>Loading</h3>)}
+
       <br />
     </>
   );

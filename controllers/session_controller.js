@@ -2,26 +2,32 @@ const express = require("express");
 const router = express.Router();
 const USERC = require("../libs/userControllerLibs.js");
 
-//! ==========================         LOGIN        ==============================
+//! ==========================    @     LOGIN        ==============================
 
 router.post("/login", async function (req, res) {
   const { username, password } = req.body;
 
   try {
     const result = await USERC.FindUserData(username);
-    console.log("resultttt", result);
     if (result) {
-      const userData = await USERC.CheckPassword(username, password)
-      .then((result) => USERC.FindUserData(username));
-      req.session.loginUser = userData
-      req.session.role = userData.role
-      res.status(200).json(userData);
+      const passwordCheck = await USERC.CheckPassword(username, password);
+
+      if (passwordCheck) {
+        const userData = await USERC.FindUserData(username);
+        const roleData = await USERC.RoleFetch(userData[0].username);
+        const FetchRoleData = await USERC.FetchRoleData(roleData[0].role_name);
+        const package = { ...userData[0], ...result[0], ...FetchRoleData[0] };
+        delete package.password;
+        req.session.loginUser = package;
+        req.session.role = package.role_name;
+        res.status(200).json(package);
+      } else res.status(400).json({ message: "Password Incorrect" });
     } else if (result[0] === undefined) {
-      res.status(400).json({ message: "user not found" });
+      res.status(400).json({ message: "User not found" });
     }
   } catch (err) {
-    console.log("err", err)
-    res.status(404).json({ message: "password incorrect" });
+    console.log("err", err);
+    res.status(404).json(err);
   }
 });
 

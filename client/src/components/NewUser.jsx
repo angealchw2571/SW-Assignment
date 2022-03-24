@@ -8,6 +8,7 @@ function NewUser() {
   const [networkStatus, setNetworkStatus] = useState("pending");
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
+  const role_arr = ["admin", "superuser", "user"];
 
   let navigate = useNavigate();
 
@@ -23,7 +24,7 @@ function NewUser() {
         }
       })
       .catch(function (error) {
-        alert(error)
+        alert(error);
         console.log(error);
       });
   };
@@ -35,23 +36,22 @@ function NewUser() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const username = event.target.username.value;
-    const email = event.target.email.value;
+    const role_name = event.target.role_name.value;
 
     if (
       username.length === 0 ||
+      role_name.length === 0 ||
       password1.length === 0 ||
-      email.length === 0 ||
       password2.length === 0
     ) {
       alert("Please do not leave empty fields.");
     } else if (rank < 3) {
       alert("Password do not meet the requirements");
     } else if (password1 === password2 && rank === 3) {
-      handleQuery({ username: username, password: password1, email: email });
+      handleQuery({ username: username, password: password1, role_name: role_name });
     } else {
       alert("Please check your password again");
     }
-
   };
 
   const handlePassword1 = (event) => {
@@ -64,30 +64,58 @@ function NewUser() {
   return (
     <>
       <h1>NewUser</h1>
+      <label>Name</label>
+      <br />
       <form onSubmit={handleSubmit}>
         <input name="username" placeholder="Username" /> <br />
-        <input
-          name="password1"
-          placeholder="Password"
-          onChange={handlePassword1}
-          maxLength={10}
-        />
-        <input
-          name="password2"
-          placeholder="Reconfirm Password"
-          maxLength="10"
-          onChange={handlePassword2}
-        />
-        <br />
-        <input name="email" placeholder="Email" />
+        <div style={{ display: "flex" }}>
+          <div>
+            <label>Password</label>
+            <br />
+            <input
+              name="password1"
+              placeholder="Password"
+              onChange={handlePassword1}
+              maxLength={10}
+            />
+          </div>
+          <div>
+            <label>Reconfirm Password</label>
+            <br />
+
+            <input
+              name="password2"
+              placeholder="Reconfirm Password"
+              maxLength="10"
+              onChange={handlePassword2}
+            />
+          </div>
+        </div>
+        <p />
+        <select id="role_name" name="role_name">
+          <option value="" hidden="hidden">
+            Select Role
+          </option>
+          {role_arr.map((e, i) => {
+            return (
+              <option
+                key={i}
+                value={`${e}`}
+                style={{ textTransform: "capitalize" }}
+              >
+                {e}
+              </option>
+            );
+          })}
+        </select>
         <p />
         <button>Create New User</button>
       </form>
-      {password1.length === 0 ? null : passwordMessage}
+      {password1.length <= 2 ? null : passwordMessage}
 
       <p />
       <Link to="/users">
-        <button>Home</button>
+        <button>Back</button>
       </Link>
     </>
   );

@@ -1,11 +1,8 @@
 import { React, useEffect, useState } from "react";
-// import { useAtom } from "jotai";
-// import { userSessionAtom } from "./LoginPage";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import axios from "axios";
 
 function User() {
-  // const sessionData = useAtom(userSessionAtom)[0];
   const [networkStatus, setnetworkStatus] = useState("pending");
   const [userData, setUserData] = useState();
   let navigate = useNavigate();
@@ -16,7 +13,7 @@ function User() {
       try {
         const res = await axios.get(`/api/user/${id}`);
         setnetworkStatus("loading");
-        setUserData(res.data[0]);
+        setUserData(res.data);
         setnetworkStatus("resolved");
       } catch (error) {
         console.log("error", error);
@@ -25,24 +22,19 @@ function User() {
     getData();
   }, [id]);
 
-
   const handleClick = (ACTION) => {
-    if (ACTION === "password"){
-      navigate(`/profile/edit/pass/${userData.user_id}`)
-    } 
-    else if (ACTION === "email"){
-      navigate(`/profile/edit/email/${userData.user_id}`)
+    
+    if (ACTION === "profile") {
+      navigate(`/profile/edit/${userData.user_id}`);
+    } else if (ACTION === "status") {
+      navigate(`/profile/edit/status/${userData.user_id}`);
+    } else if (ACTION === "resetPassword") {
+      navigate(`/profile/edit/reset/${userData.user_id}`);
     }
-    else if (ACTION === "status"){
-      navigate(`/profile/edit/status/${userData.user_id}`)
+     else if (ACTION === "role") {
+      navigate(`/profile/edit/role/${userData.user_id}`);
     }
-    else if (ACTION === "resetPassword"){
-      navigate(`/profile/edit/reset/${userData.user_id}`)
-    }
-  }
-
-
-
+  };
 
   return (
     <>
@@ -51,18 +43,27 @@ function User() {
         <>
           <div> UserID: {userData.user_id} </div>
           <div>
-            Username: {userData.username} <br />
-            Role: {userData.role} <br />
-            Active Status: {(userData.status === 1) ? "True": 'False'}
-          </div><p/>
-          {/* <button onClick={()=>handleClick('password')}>Change Password</button> */}
-          <button onClick={()=>handleClick('email')}>Change Email</button>
-          <button onClick={()=>handleClick('status')}>Change Status</button>
-          <button onClick={()=>handleClick('resetPassword')}>Reset Password</button>
+            Name: {userData.name} <br />
+            Age: {userData.age} <br />
+            Email: {userData.email} <br />
+            Role: {userData.role_name} <br />
+            Role Description: {userData.role_description} <br />
+            Status:
+            {userData.user_status === 1 ? (
+              <span style={{ color: "green" }}>● Active</span>
+            ) : (
+              <span style={{ color: "red" }}>● Inactive</span>
+            )}
+          </div>
           <p />
-      <Link to="/users">
-        <button>Back</button>
-      </Link>
+          <button onClick={() => handleClick("profile")}>Edit Profile Details</button>
+          <button onClick={() => handleClick("resetPassword")}>Reset Password</button><p/>
+          <button onClick={() => handleClick("status")}>Change User Status</button>
+          <button onClick={() => handleClick("role")}>Change Role</button>
+          <p />
+          <Link to="/users">
+            <button>Back</button>
+          </Link>
         </>
       ) : null}
     </>

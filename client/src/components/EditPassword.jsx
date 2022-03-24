@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 const PasswordValidation = require("./PasswordValidation");
 
 
-function Password() {
+function EditPassword() {
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
   const { id } = useParams();
@@ -60,7 +60,7 @@ function Password() {
       <h1>Password change</h1>
       <form onSubmit={handleSubmit}>
         <input name="currentPassword" placeholder="Current Password" />
-        <br />
+        <p />
         <input
           name="newPassword"
           placeholder="New Password"
@@ -79,11 +79,11 @@ function Password() {
       </form>
       {passwordMessage}
       <p />
-      <Link to="/users">
+      <Link to="/home">
         <button>Back</button>
       </Link>
     </>
   );
 }
 
-export default Password;
+export default EditPassword;

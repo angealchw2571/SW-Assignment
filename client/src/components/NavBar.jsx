@@ -3,7 +3,7 @@ import axios from "axios";
 import { useAtom } from "jotai";
 import { userSessionAtom } from "./LoginPage";
 
-function Logout() {
+function Navbar() {
   const [sessionData, setSessionData] = useAtom(userSessionAtom);
 
   const handleLogout = async () => {
@@ -21,10 +21,13 @@ function Logout() {
   return (
     <>
     {sessionData.user_id === undefined ? null: (
+      <>
+      <span>Welcome, {sessionData.role_name} {sessionData.username} </span>
       <button style={{float: "right", marginRight:50}} onClick={handleLogout}>Logout</button>
+      </>
     )}
     </>
   );
 }
 
-export default Logout;
+export default Navbar;

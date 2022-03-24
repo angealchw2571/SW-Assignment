@@ -75,7 +75,7 @@ function ResetPassword() {
       </form>
       {passwordMessage}
       <p />
-      <Link to="/users">
+      <Link to={`/user/${id}`}>
         <button>Back</button>
       </Link>
     </>
