@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-// const mysql = require("mysql");
 const USERC = require("../libs/userControllerLibs.js");
+// const mysql = require("mysql");
 
 // const SUPERUSER = "superuser";
 // const ADMIN = "admin";
@@ -87,18 +87,21 @@ router.post("/edit/reset/:id", async function (req, res) {
   }
 });
 
-//! ====================    @     Update Permissions       ==============================
+//* ====================    @     Update Permissions       ==============================
 
 router.post("/permissions/:id", async function (req, res) {
   const { id } = req.params;
-  const role_name = req.body.role_name
+  const {role_groups, groupName} = req.body
 
+  console.log("groupName", groupName)
   try {
     const username = await USERC.FetchUsername(id)
-    const result = await USERC.UpdatePermissions(role_name, username)
-console.log("api query done", result)
+    const result = await USERC.UpdatePermissions(role_groups, username)
+    const result2 = await USERC.UpdateGroupTeamsAssignment(username, groupName)
+    if (result2){
+      res.status(200).json({ message: "User permission change successful" });
+    }
   
-    res.status(200).json({ message: "User permission change successful" });
   } catch (err) {
     console.log("error from catching block", err);
     res.status(400).json(err);
@@ -118,27 +121,39 @@ router.get("/checkroles", async function (req, res) {
 
 
 //! ====================   @      CHECKGROUP SINGLE ID   CHECK THIS AGAIN      ==============================
-router.get("/checkrole/:id/:role", async function (req, res) {
-  const { role, id } = req.params;
+router.get("/checkrole/:id/:roleName", async function (req, res) {
+  const { roleName, id } = req.params;
   try {
     const username = await USERC.FetchUsername(id);
-    console.log("role", role);
-    console.log("username", username);
-    const result = await USERC.CheckRole(username, role);
-    console.log("result", result);
+    const roleGroup = await USERC.RoleGroupFetch(username)
+    const result = await USERC.CheckRole(roleGroup[0].role_groups, roleName);
     if (result) res.status(200).json({ message: "User in this group" });
     else res.status(400).json({ message: "User not in this group" });
   } catch (error) {
     console.log("error from catch block", error);
   }
 });
+
+
+//* ======================   @      CREATE NEW ROLE       ==============================
+router.post("/newrole", async function (req, res) { 
+  const {role_name, role_description } = req.body;
+  try {
+    await USERC.CreateNewRole(role_name, role_description);
+        res.status(200).json({ message: "New Role Created Successfully" });
+  } catch (error) {
+    console.log("error from catch blockkkk", error);
+  }
+});
+
 //* ======================   @      CREATE NEW USER       ==============================
 router.post("/new", async function (req, res) { 
-  const { username, password, role_name } = req.body;
+  const { username, password, role_groups, groupName } = req.body;
   try {
-    const result = await USERC.CreateNewUser(username, password, role_name);
+    const result = await USERC.CreateNewUser(username, password, role_groups);
     if (result) {
       const userID = await USERC.FetchID(username);
+      await USERC.AddGroupTeamsAssignment(username, groupName)
       const finalResult = await USERC.CreateNewProfile(userID, username);
       if (finalResult) {
         res.status(200).json({ message: "User Created Successfully" });
@@ -151,6 +166,15 @@ router.post("/new", async function (req, res) {
   }
 });
 
+//* ======================    @     GET ALL GROUPS        ==============================
+router.get("/groups", async function (req, res) { 
+  try {
+    const data = await USERC.FetchAllGroups();
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
 //* ======================   @      GET SPECIFIC USER       ==============================
 router.get("/:id", async function (req, res) {  
   const { id } = req.params;
@@ -158,10 +182,10 @@ router.get("/:id", async function (req, res) {
   try {
     const username = await USERC.FetchUsername(id);
     const profileData = await USERC.FetchProfileData(id);
-    const roleData = await USERC.RoleFetch(username);
+    const groupData = await USERC.FetchGroupDetails(username)
+    const roleData = await USERC.RoleGroupFetch(username);
     const userData = await USERC.FindUserDataID(id);
-    const result = await USERC.FetchRoleData(roleData[0].role_name);
-    const updatedData = { ...profileData, ...result[0], ...userData[0] };
+    const updatedData = { ...profileData, ...userData[0], ...roleData[0], ...groupData[0] };
     delete updatedData.password;
     res.status(200).json(updatedData);
   } catch (error) {
@@ -171,7 +195,6 @@ router.get("/:id", async function (req, res) {
 });
 
 //* ======================    @     GET ALL USER       ==============================
-
 router.get("/", async function (req, res) { 
   try {
     const data = await USERC.FindAllUser();
@@ -182,11 +205,25 @@ router.get("/", async function (req, res) {
 });
 
 //* ======================  @       GET SPECIFIC GROUP       ==============================
-router.get("/checkgroup/:role", async function (req, res) { 
-  const { role } = req.params;
+router.get("/checkgroup/:roleName", async function (req, res) { 
+  const { roleName } = req.params;
+  let package = []
   try {
-    const data = await USERC.FetchGroupUsers(role);
-    res.status(200).json(data);
+    const allUsers = await USERC.FindAllUser()
+    console.log("allUsers", allUsers)
+    for (let i=0; i < allUsers.length; i++) {
+      const username =  await USERC.FetchUsername(allUsers[i].user_id);
+      console.log("step1")
+      const roleGroup =  await USERC.RoleGroupFetch(username)
+      console.log("step2", roleGroup)
+      const result = await USERC.CheckRole(roleGroup[0].role_groups, roleName);
+      console.log("step3", result)
+      if (result === true) {
+        package.push(allUsers[i])
+      }
+    }
+      console.log("package", package)
+    res.status(200).json(package);
   } catch (error) {
     console.log("error from catch block", error);
   }

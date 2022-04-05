@@ -1,6 +1,6 @@
 import { React, useState } from "react";
 import { useAtom } from "jotai";
-import { userSessionAtom } from "./LoginPage";
+import { userSessionAtom } from "../LoginPage";
 import { Link } from "react-router-dom";
 import Table from "./Table";
 import axios from "axios";
@@ -9,10 +9,11 @@ function UserManagement() {
   const sessionData = useAtom(userSessionAtom)[0];
   const [networkStatus, setNetworkStatus] = useState("pending");
   const [userData, setUserData] = useState();
-  const SUPERUSER = "superuser";
-  const ADMIN = "admin";
-  const USER = "user";
+  const SUPERUSER = "Superuser";
+  const ADMIN = "Admin";
+  const USER = "User";
   const ALL = "ALL";
+
 
   const handleQuery = async (role_name) => {
     const url = () => {
@@ -24,15 +25,12 @@ function UserManagement() {
         return url;
       }
     };
-
-    console.log("url", url());
     setNetworkStatus("pending")
 
     await axios
       .get(url())
       .then((res) => {
         if (res) {
-          console.log("res.data", res.data);
           setUserData(res.data);
           setNetworkStatus("resolved");
         }
@@ -58,13 +56,13 @@ function UserManagement() {
   return (
     <>
       <h1> User Management Admin Board</h1>
-      <Link to="/home">
-        <button>Back To Home</button>
-      </Link>
-      {sessionData.role_name === "admin" ? (
+      {sessionData.role_groups.includes("Admin") ? (
         <span>
           <Link to="/new">
             <button>Create New User</button>
+          </Link>
+          <Link to="/newrole">
+            <button>Create new role</button>
           </Link>
         </span>
       ) : null}
@@ -77,7 +75,10 @@ function UserManagement() {
       {networkStatus === "resolved" ? (
         <Table userData={userData} />
       ) : null}
-
+<p/>
+      <Link to="/home">
+        <button>Back To Home</button>
+      </Link>
 
       <br />
     </>

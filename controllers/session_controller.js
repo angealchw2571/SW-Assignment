@@ -14,12 +14,12 @@ router.post("/login", async function (req, res) {
 
       if (passwordCheck) {
         const userData = await USERC.FindUserData(username);
-        const roleData = await USERC.RoleFetch(userData[0].username);
-        const FetchRoleData = await USERC.FetchRoleData(roleData[0].role_name);
-        const package = { ...userData[0], ...result[0], ...FetchRoleData[0] };
+        const roleData = await USERC.RoleGroupFetch(userData[0].username);
+        const assignedTeams = await USERC.FetchGroupDetails(username)
+        const package = { ...userData[0], ...result[0],... roleData[0], ... assignedTeams[0]};
         delete package.password;
         req.session.loginUser = package;
-        req.session.role = package.role_name;
+        req.session.teams = assignedTeams[0].group_name
         res.status(200).json(package);
       } else res.status(400).json({ message: "Password Incorrect" });
     } else if (result[0] === undefined) {

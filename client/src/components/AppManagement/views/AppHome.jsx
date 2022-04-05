@@ -1,0 +1,152 @@
+import { React, useEffect, useState } from "react";
+import { useAtom } from "jotai";
+import { userSessionAtom } from "../../LoginPage";
+import axios from "axios";
+import moment from "moment";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import { useNavigate } from "react-router-dom";
+
+function AppHome() {
+  const sessionData = useAtom(userSessionAtom)[0];
+  const [networkStatus, setnetworkStatus] = useState("pending");
+  const [appData, setAppData] = useState();
+  let navigate = useNavigate();
+  console.log("sessionData", sessionData);
+  console.log("app", appData);
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const res = await axios.get(`/api/app/appgroups`);
+        setnetworkStatus("loading");
+        setAppData(res.data);
+        setnetworkStatus("resolved");
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+    getData();
+  }, []);
+
+  const handleClick = (App_Acronym) => {
+    navigate(`/app/${App_Acronym}`);
+  };
+
+
+  const handleCreate = () => {
+    navigate(`/appcreate`);
+  }
+
+
+
+
+  return (
+    <>
+      {networkStatus === "resolved" ? (
+        <>
+          <main>
+            <Box
+              sx={{
+                bgcolor: "background.paper",
+                pt: 8,
+                pb: 1,
+              }}
+            >
+              <Container sx={{ bgcolor: "lightblue" }} maxWidth="sm">
+                <Typography
+                  component="h1"
+                  variant="h2"
+                  align="center"
+                  color="text.primary"
+                  gutterBottom
+                >
+                  App List
+                </Typography>
+              </Container>
+            </Box>
+            <Box>
+              <Button
+                sx={{
+                  bgcolor: "#ff8aae",
+                  color: "#f9f1f1",
+                  ":hover": {
+                    backgroundColor: "pink",
+                    color: "black",
+                  },
+                }}
+                onClick= {handleCreate}
+              >
+                <Typography>Create new App</Typography>
+              </Button>
+            </Box>
+            <Container sx={{ py: 6 }} maxWidth="md">
+              <Grid container spacing={4}>
+                {appData.map((e, i) => (
+                  <Grid item key={i} xs={12} sm={6} md={4}>
+                    <Card
+                      elevation={6}
+                      sx={{
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <CardMedia
+                        component="img"
+                        sx={{
+                          width: 100,
+                          paddingTop: 6,
+                          marginLeft: "auto",
+                          marginRight: "auto",
+                        }}
+                        image="https://img.icons8.com/ios/344/project.png"
+                        alt="random"
+                      />
+                      <CardContent sx={{ flexGrow: 1 }}>
+                        <Typography
+                          variant="h4"
+                          sx={{ marginBottom: 3, fontWeight: "bold" }}
+                        >
+                          {e.App_Acronym}
+                        </Typography>
+                        <Typography sx={{ fontSize: 14 }}>
+                          <span>
+                            Start Date:
+                            {moment(e.App_startDate).format("Do MMM  YYYY")}
+                          </span>
+                          <br />
+                          <span>
+                            End Date:
+                            {moment(e.App_endDate).format("Do MMM YYYY")}
+                          </span>
+                        </Typography>
+                      </CardContent>
+                      <CardActions>
+                        <Button
+                          size="small"
+                          onClick={() => handleClick(e.App_Acronym)}
+                        >
+                          View
+                        </Button>
+                      </CardActions>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Container>
+          </main>
+        </>
+      ) : null}
+    </>
+  );
+}
+
+export default AppHome;

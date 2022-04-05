@@ -1,6 +1,5 @@
 const bcrypt = require("bcrypt");
 const mysql = require("mysql");
-const util = require("util");
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -56,7 +55,7 @@ function FindUserDataID(id) {
     );
   });
 }
-//! =============================        for login       =============================
+//* =============================        for login       =============================
 function FindUserData(username) {
   return new Promise((resolve, reject) => {
     connection.query(
@@ -77,7 +76,7 @@ function FindUserData(username) {
   });
 }
 
-//! =============================  fetch profile details with id   =============================
+//* =============================  fetch profile details with id   =============================
 function FetchProfileData(id) {
   return new Promise((resolve, reject) => {
     connection.query(
@@ -87,10 +86,10 @@ function FetchProfileData(id) {
         if (err) {
           return reject(err);
         } else if (result[0] === undefined) {
-          console.log("user not found");
+          // console.log("user not found");
           return resolve({ message: "User not found" });
         } else {
-          console.log("user found");
+          // console.log("user found");
           return resolve(result[0]);
         }
       }
@@ -98,7 +97,7 @@ function FetchProfileData(id) {
   });
 }
 
-//! =============================       Fetch details from all tables    =============================
+//* =============================       Fetch details from all tables    =============================
 function FindAllUser() {
   const sqlQuery = `SELECT
     users.user_id,
@@ -107,19 +106,23 @@ function FindAllUser() {
     name,
     age,
     email,
-    role_id,
-    roles.role_name,
-    role_description
-    FROM profiles, permissions, roles, users 
+    role_groups,
+    group_name
+    FROM profiles, permissions, users, group_teams_assignment 
     WHERE users.username = permissions.username
-    AND permissions.role_name = roles.role_name 
-    AND users.username = profiles.username AND permission_status= '1';`;
+    AND users.username = profiles.username 
+    AND permission_status= '1'
+    AND users.username = group_teams_assignment.username
+    ORDER BY users.user_id;`;
 
   return new Promise((resolve, reject) => {
     connection.query(sqlQuery, (err, result) => {
       if (err) {
         return reject(err);
       } else {
+        result.map((e)=> {
+          e.role_groups = JSON.parse(e.role_groups)
+        })
         console.log("all users found");
         return resolve(result);
       }
@@ -127,22 +130,23 @@ function FindAllUser() {
   });
 }
 
-//! =============================     create new user    =============================
-function CreateNewUser(username, password, role_name, user_id) {
+//* =============================     create new user    =============================
+function CreateNewUser(username, password, role_groups,) {
   const hashPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
   const sqlQuery = `
   INSERT INTO users (username, password) VALUES (?,?)
   `;
   const sqlQuery2 = `
-  INSERT INTO permissions (role_name, username) VALUES (?,?)
+  INSERT INTO permissions (role_groups, username) VALUES (?,?)
   `;
+  const JSONroleGroups = JSON.stringify(role_groups)
   return new Promise((resolve, reject) => {
     connection.query(sqlQuery, [username, hashPassword], (err) => {
       if (err) {
         console.log("error", err);
         return reject(false);
       } else {
-        connection.query(sqlQuery2, [role_name, username], (err) => {
+        connection.query(sqlQuery2, [JSONroleGroups, username], (err) => {
           if (err) {
             console.log("error", err);
             return reject(false);
@@ -156,7 +160,7 @@ function CreateNewUser(username, password, role_name, user_id) {
   });
 }
 
-//? Relook this and edit password
+//* =============================     Relook this and edit password    =======================
 function EditPassword(newPassword, id) {
   return new Promise((resolve, reject) => {
     connection.query(
@@ -173,8 +177,7 @@ function EditPassword(newPassword, id) {
   });
 }
 
-//!  ==================================          Create new profile         =============================
-
+//*  ==================================          Create new profile         =============================
 function CreateNewProfile(user_id, username) {
   const sqlQuery = `
   INSERT INTO profiles (name, age, email, user_id, username) 
@@ -186,23 +189,33 @@ function CreateNewProfile(user_id, username) {
         console.log("error", err);
         return reject(false);
       } else {
-        console.log("checkgroup working", result);
+        console.log("create new profile success", result);
         return resolve(true);
       }
     });
   });
 }
 
-//!  ==================================          FIX THIS         =============================
+//*  ==================================          FIX THIS         =============================
 //* Check whether certain user is still in certain group, returns true/false
-function CheckRole(username, role_name) {
+function CheckRole(role_groups, role_name) {
+  const stringJSON = JSON.stringify(role_groups)
   return new Promise((resolve, reject) => {
     connection.query(
-      "SELECT * FROM permissions WHERE username = ? AND permission_status = '1' AND role_name = ?;",
-      [username, role_name],
+      `SELECT JSON_CONTAINS('${stringJSON}','"${role_name}"')`,
       (err, result) => {
-        if (result[0] === undefined) return resolve(false);
-        else {
+        if (err) {
+          console.log("error", err)
+          return resolve(false);
+        }
+        else if (result[0][Object.keys(result[0])[0]] === 0){
+          // console.log(result[0][Object.keys(result[0])[0]])
+          console.log("user not in group")
+          return resolve(false)
+        }
+        else{
+          // console.log(">>>>>", result[0][Object.keys(result[0])[0]])
+          console.log("user in group")
           return resolve(true);
         }
       }
@@ -211,15 +224,34 @@ function CheckRole(username, role_name) {
 }
 
 //! =============================         fetch role from roles table      ========================
-function RoleFetch(username) {
+// function RoleFetch(username) {
+//   return new Promise((resolve, reject) => {
+//     connection.query(
+//       "SELECT role_groups FROM permissions WHERE username = ? && permission_status ='1' ;",
+//       [username],
+//       (err, result) => {
+//         if (err) return reject(err);
+//         else if (result) {
+//           result[0].role_groups = JSON.parse(result[0].role_groups)
+//           return resolve(result);
+//         }
+//       }
+//     );
+//   });
+// }
+
+//! =============================         fetch role from roles table with single username     ========================
+function RoleGroupFetch(username) {
+  console.log("username", username)
   return new Promise((resolve, reject) => {
     connection.query(
-      "SELECT role_name FROM permissions WHERE username = ? && permission_status ='1' ;",
+      "SELECT role_groups FROM permissions WHERE username = ? && permission_status ='1' ;",
       [username],
       (err, result) => {
         if (err) return reject(err);
         else if (result) {
-          return resolve(result); //! returns role_id
+          result[0].role_groups = JSON.parse(result[0].role_groups);
+          return resolve(result);
         }
       }
     );
@@ -251,13 +283,11 @@ function FetchGroupUsers(role_name) {
   name, 
   age, 
   email, 
-  roles.role_name, 
-  role_description
-  FROM profiles, permissions, roles, users 
+  role_groups
+  FROM profiles, permissions, users 
   WHERE users.username = permissions.username 
-  AND permissions.role_name = roles.role_name 
   AND users.username = profiles.username 
-  AND roles.role_name = ? AND permission_status = '1';`;
+  AND permission_status = '1';`;
 
   return new Promise((resolve, reject) => {
     connection.query(sqlQuery, [role_name], (err, result) => {
@@ -287,6 +317,7 @@ function UpdateProfileValues(id, name, age, email) {
     });
   });
 }
+
 function UpdateUserValues(id, value, action) {
   const sqlQuery = `UPDATE users SET ${action} = ? where user_id = ?;`;
   return new Promise((resolve, reject) => {
@@ -351,9 +382,10 @@ function FetchAllRolesData() {
   });
 }
 
-function UpdatePermissions(role_name, username) {
+function UpdatePermissions(role_groups, username) {
+  const parsedJSON = JSON.stringify(role_groups)
   const sqlQuery = `UPDATE permissions SET permission_status = '0' WHERE username = ?;`;
-  const sqlQuery2 = `INSERT INTO permissions (role_name, username) VALUES ( ? , ? );`;
+  const sqlQuery2 = `INSERT INTO permissions (role_groups, username) VALUES ( ? , ?);`;
   return new Promise((resolve, reject) => {
     connection.query(sqlQuery, [username], (err, result) => {
       if (err) {
@@ -362,12 +394,12 @@ function UpdatePermissions(role_name, username) {
       } else {
         console.log("update permission status success");
 
-        connection.query(sqlQuery2, [role_name, username], (err, result) => {
+        connection.query(sqlQuery2, [parsedJSON, username], (err, result) => {
           if (err) {
             console.log("error", err);
             reject(err);
           } else {
-            console.log("added new permission success")
+            console.log("added new permission success");
             resolve(result);
           }
         });
@@ -375,6 +407,90 @@ function UpdatePermissions(role_name, username) {
     });
   });
 }
+
+function CreateNewRole(role_name, role_description) {
+  const sqlQuery = `INSERT INTO roles (role_name, role_description) VALUES (?,?);`;
+
+  return new Promise((resolve, reject) => {
+    connection.query(sqlQuery, [role_name, role_description], (err, result) => {
+      if (err) {
+        console.log("error", err);
+        reject(err);
+      } else {
+        console.log("create new role success");
+        resolve(result);
+      }
+    });
+  });
+}
+
+
+//* =============================  fetch profile details with id   =============================
+function FetchAllGroups() {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "SELECT * FROM groups_table;",
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        } else {
+          return resolve(result);
+        }
+      }
+    );
+  });
+}
+
+//* =============================  fetch group with username   =============================
+function FetchGroupDetails(username) {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "SELECT * FROM group_teams_assignment WHERE username = ?;",
+      [username],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        } else {
+          return resolve(result);
+        }
+      }
+    );
+  });
+}
+
+//* =============================  Add new group_teams_assignment   =============================
+function AddGroupTeamsAssignment(username, groupName) {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "INSERT INTO group_teams_assignment(group_name, username) VALUES (?,?);",
+      [groupName, username],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        } else {
+          return resolve(result);
+        }
+      }
+    );
+  });
+}
+//* =============================  Update group_teams_assignment   =============================
+function UpdateGroupTeamsAssignment(username, groupName) {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "UPDATE group_teams_assignment SET group_name = ? WHERE username = ?",
+      [groupName, username],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        } else {
+          return resolve(result);
+        }
+      }
+    );
+  });
+}
+
 
 module.exports = {
   CheckPassword,
@@ -385,7 +501,6 @@ module.exports = {
   FindAllUser,
   EditPassword,
   CheckRole,
-  RoleFetch,
   FetchRoleData,
   FetchGroupUsers,
   UpdateProfileValues,
@@ -396,4 +511,10 @@ module.exports = {
   CreateNewProfile,
   FetchAllRolesData,
   UpdatePermissions,
+  CreateNewRole,
+  RoleGroupFetch,
+  FetchAllGroups,
+  FetchGroupDetails,
+  AddGroupTeamsAssignment,
+  UpdateGroupTeamsAssignment
 };

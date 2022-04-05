@@ -8,7 +8,6 @@ function Home() {
   const sessionData = useAtom(userSessionAtom)[0];
   const [networkStatus, setnetworkStatus] = useState("pending");
   const [userData, setUserData] = useState();
-  // console.log("sessionData", sessionData)
   let navigate = useNavigate();
 
   useEffect(() => {
@@ -25,14 +24,18 @@ function Home() {
     getData();
   }, [sessionData.user_id]);
 
-  const handleClick = () => {
-    navigate(`/users`);
+  const handleClick = (ACTION) => {
+    if (ACTION === "users") {
+      navigate(`/users`);
+    } else if (ACTION === "app") {
+      navigate(`/app/home`);
+    }
   };
 
   const handleEdit = (action) => {
-    if (action === 'password') {
+    if (action === "password") {
       navigate(`/profile/edit/pass/${sessionData.user_id}/`);
-    } else if (action === 'profile'){
+    } else if (action === "profile") {
       navigate(`/profile/edit/${sessionData.user_id}/`);
     }
   };
@@ -48,8 +51,23 @@ function Home() {
             <li>Name: {userData.name}</li>
             <li>Age: {userData.age}</li>
             <li>Email: {userData.email}</li>
-            <li>Role: {userData.role_name}</li>
-            <li>Role Description: {userData.role_description}</li>
+            {/* <li>Role: {userData.role_name}</li> */}
+            <li>
+              Role Groups:
+              <br />
+              {userData.role_groups.map((e, i) => {
+                return (
+                  <span key={i} style={{ fontWeight: "bold" }}>
+                    {e}
+                    <br />
+                  </span>
+                );
+              })}
+            </li>
+            <li>
+              Assigned Team: {userData.group_name}
+            </li>
+
             <li>
               Status:{" "}
               {userData.user_status === 1 ? (
@@ -59,11 +77,24 @@ function Home() {
               )}
             </li>
           </ul>
-          <button onClick={()=>handleEdit('password')}> Edit password</button>
-          <button onClick={()=>handleEdit('profile')}> Edit profile</button><p/>
-          {userData.role_name === "admin" ? (
-            <button onClick={handleClick}> User Management</button>
+          <button onClick={() => handleEdit("password")}> Edit password</button>
+          <button onClick={() => handleEdit("profile")}> Edit profile</button>
+          <p />
+          {sessionData.role_groups.includes("Admin") ? (
+            <button onClick={() => handleClick("users")}>
+              {" "}
+              User Management
+            </button>
           ) : null}
+          {/* {sessionData.role_groups.includes("Admin") ||
+          sessionData.role_groups.includes("Project Manager") ? (
+            <button onClick={() => handleClick("app")}>
+              Application Management
+            </button>
+          ) : null} */}
+          <button onClick={() => handleClick("app")}>
+              Application Management
+            </button>
         </>
       ) : null}
     </>

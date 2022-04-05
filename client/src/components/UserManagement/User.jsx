@@ -38,16 +38,27 @@ function User() {
 
   return (
     <>
-      <h1>Individual User</h1>
       {networkStatus === "resolved" ? (
         <>
+        <h1> User: {userData.name}</h1>
           <div> UserID: {userData.user_id} </div>
           <div>
             Name: {userData.name} <br />
             Age: {userData.age} <br />
             Email: {userData.email} <br />
-            Role: {userData.role_name} <br />
-            Role Description: {userData.role_description} <br />
+            Role Groups:
+            <br/>
+              {userData.role_groups.map((e,i)=> {
+                return (
+                  <span key={i} style={{fontWeight: "bold"}}>
+                    {e} 
+                    <br/>
+                  </span>
+                )
+              })}
+              
+              Assigned Team: {userData.group_name}<br/>
+          
             Status:
             {userData.user_status === 1 ? (
               <span style={{ color: "green" }}>● Active</span>
@@ -59,7 +70,7 @@ function User() {
           <button onClick={() => handleClick("profile")}>Edit Profile Details</button>
           <button onClick={() => handleClick("resetPassword")}>Reset Password</button><p/>
           <button onClick={() => handleClick("status")}>Change User Status</button>
-          <button onClick={() => handleClick("role")}>Change Role</button>
+          <button onClick={() => handleClick("role")}>Change User Permissions</button>
           <p />
           <Link to="/users">
             <button>Back</button>

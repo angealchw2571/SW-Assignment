@@ -6,6 +6,7 @@ const mysql = require("mysql");
 const session = require("express-session");
 const userController = require("./controllers/user_controller");
 const sessionController = require("./controllers/session_controller");
+const appController = require("./controllers/app_controller");
 
 
 //? =========================    Config    =========================
@@ -15,7 +16,7 @@ const connection = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: process.env.MYSQL_PW,
-  database: "sw_assignment_db",
+  database: "assignment_db",
 });
 
 connection.connect(function (err) {
@@ -42,25 +43,10 @@ app.use(
 
 app.use("/api/user", userController);
 app.use("/api/session", sessionController);
+app.use("/api/app", appController);
 
 
 //? =========================    Routes      =========================
-
-
-app.get("/main", function (req, res) {
-  res.render("mainMenu.ejs");
-});
-
-app.get("/login", function (req, res) {
-  res.render("homepageLogin.ejs");
-});
-
-app.get("/new", function (req, res) {
-  res.render("newUser.ejs");
-});
-
-
-
 
 
 app.listen(PORT, () => {

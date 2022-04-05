@@ -2,29 +2,35 @@ import { useAtom } from "jotai";
 import { Navigate } from "react-router-dom";
 import LoginPage from "./components/LoginPage";
 import Home from "./components/Home";
-import UserManagement from "./components/UserManagement";
-import EditPassword from "./components/EditPassword";
-import UpdateProfile from "./components/UpdateProfile";
-import User from "./components/User";
-import NewUser from "./components/NewUser";
+import UserManagement from "./components/UserManagement/UserManagement";
+import EditPassword from "./components/UserManagement/EditPassword";
+import UpdateProfile from "./components/UserManagement/UpdateProfile";
+import User from "./components/UserManagement/User";
+import NewUser from "./components/UserManagement/NewUser";
+import NewRole from "./components/UserManagement/NewRole";
 import Error from "./components/Error";
-import Status from "./components/Status";
+import Status from "./components/UserManagement/Status";
 import NavBar from "./components/NavBar";
 import { userSessionAtom } from './components/LoginPage';
 import { BrowserRouter } from "react-router-dom";
 import { Route, Routes } from "react-router";
-import ResetPassword from "./components/ResetPassword";
-import RoleChange from "./components/RoleChange";
+import ResetPassword from "./components/UserManagement/ResetPassword";
+import UpdatePermissions from "./components/UserManagement/UpdatePermissions";
 import Authentication from "./components/Authentication";
+import AppHome from "./components/AppManagement/views/AppHome";
+import IndividualApp from "./components/AppManagement/views/IndividualApp";
+import CreateApp from "./components/AppManagement/CreateApp";
+import Test from "./components/AppManagement/views/Test";
 
 function App() {
   const sessionData = useAtom(userSessionAtom)[0];
-  // console.log("sessionData", sessionData);
 
   const isAuthorised = () => {
-    if (sessionData.role_name === "admin") {
-      return true;
-    } else return false;
+    if (sessionData.role_groups === undefined) {
+      return false;
+    } else if (sessionData.role_groups.includes("Admin")){
+      return true
+    };
   };
 
   const isLogged = () => {
@@ -60,11 +66,18 @@ function HomeRoute({children}){
 					<Route exact path="/profile/edit/pass/:id" element={<HomeRoute><EditPassword /></HomeRoute>} />
           <Route exact path="/profile/edit/:id/" element={<HomeRoute><UpdateProfile /></HomeRoute>} />
           <Route exact path="/profile/edit/status/:id" element={<PrivateRoute><Status /></PrivateRoute>} />
-          <Route exact path="/profile/edit/role/:id" element={<PrivateRoute><RoleChange /></PrivateRoute>} />
+          <Route exact path="/profile/edit/role/:id" element={<PrivateRoute><UpdatePermissions /></PrivateRoute>} />
           <Route exact path="/profile/edit/reset/:id" element={<PrivateRoute><ResetPassword /></PrivateRoute>} />
-          <Route exact path="/new" element={<NewUser />} />
+          <Route exact path="/new" element={<PrivateRoute><NewUser/></PrivateRoute>} />
+          <Route exact path="/newrole" element={<PrivateRoute><NewRole /></PrivateRoute>} />
           <Route path="/auth" element={<Authentication />} />
           <Route path="/error" element={<Error />} />
+          {/* <Route path="/createtask" element={<CreateTask />} /> */}
+          <Route path="/app/home" element={<AppHome />} />
+          <Route path="/appcreate" element={<CreateApp />} />
+          <Route path="/app/edit/:appAcronym" element={<Test />} />
+          <Route path="/app/:appAcronym" element={<IndividualApp />} />
+          {/* <Route path="/test" element={<Test />} /> */}
         </Routes>
       </div>
     </BrowserRouter>

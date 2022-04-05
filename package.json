@@ -17,6 +17,7 @@
     "express": "^4.17.3",
     "express-router": "^0.0.1",
     "express-session": "^1.17.2",
+    "moment": "^2.29.2",
     "mysql": "^2.18.1",
     "nodemon": "^2.0.15"
   }

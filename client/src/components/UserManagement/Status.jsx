@@ -1,10 +1,28 @@
-import { React } from "react";
+import { React, useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate, Link } from "react-router-dom";
 
 function Status() {
+  const [networkStatus, setnetworkStatus] = useState("pending");
+  const [userData, setUserData] = useState()
   const { id } = useParams();
   let navigate = useNavigate();
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const res = await axios.get(`/api/user/${id}`);
+        setnetworkStatus("loading");
+        setUserData(res.data);
+        setnetworkStatus("resolved");
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+    getData();
+  }, [id]);
+
+
 
   const handleQuery = async (data) => {
     await axios
@@ -28,7 +46,9 @@ function Status() {
 
   return (
     <>
-      <h1>Change Status</h1>
+    {networkStatus === "resolved" ? (<>
+      <h1>Update Status</h1>
+      <h3>User: {userData.name}</h3>
       <form onSubmit={handleSubmit}>
         <label>
           Status:
@@ -47,7 +67,10 @@ function Status() {
       <Link to={`/user/${id}`}>
         <button>Back</button>
       </Link>
+    </>) : null}
     </>
+    
+    
   );
 }
 

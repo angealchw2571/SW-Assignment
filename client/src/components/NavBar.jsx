@@ -22,8 +22,12 @@ function Navbar() {
     <>
     {sessionData.user_id === undefined ? null: (
       <>
-      <span>Welcome, {sessionData.role_name} {sessionData.username} </span>
+      <div style={{background:"pink", padding:10}}>
+
+      <span>Welcome, {sessionData.username} </span><br/>
+      <span>Team assigned: {sessionData.group_name} </span>
       <button style={{float: "right", marginRight:50}} onClick={handleLogout}>Logout</button>
+      </div>
       </>
     )}
     </>

@@ -4,13 +4,13 @@ import { useNavigate } from "react-router-dom";
 
 export default function Table({ userData }) {
   const data = React.useMemo(() => userData, [userData]);
-    let navigate = useNavigate();
-
+  let navigate = useNavigate();
+  console.log("userData", userData);
 
   const handleEdit = (e) => {
-    const userID = e.row.original.user_id
-    navigate(`/user/${userID}`)
-  }
+    const userID = e.row.original.user_id;
+    navigate(`/user/${userID}`);
+  };
 
   const columns = React.useMemo(
     (e) => [
@@ -31,26 +31,40 @@ export default function Table({ userData }) {
         accessor: "age",
       },
       {
+        Header: "Role Groups",
+        accessor: "role_groups",
+        Cell: (e) => (
+          <span>
+            {e.row.original.role_groups.map((e, i)=> {
+              return <li key ={i}style={{textWeight:"bold"}}>{e} </li>
+            })}
+          </span>
+        ),
+      },
+      {
+        Header: "Assigned Group",
+        accessor: "group_name",
+      },
+      {
         Header: "Email",
         accessor: "email",
       },
       {
-        Header: "Role",
-        accessor: "role_name",
-      },
-      {
-        Header: "Role Description",
-        accessor: "role_description",
-      },
-      {
         Header: "Status",
         accessor: "user_status",
-        Cell: e=> <span>{e.row.original.user_status === 1 ? <span style={{ color: "green" }}>● Active</span> :               <span style={{ color: "red" }}>● Inactive</span>
-      }</span>
+        Cell: (e) => (
+          <span>
+            {e.row.original.user_status === 1 ? (
+              <span style={{ color: "green" }}>● Active</span>
+            ) : (
+              <span style={{ color: "red" }}>● Inactive</span>
+            )}
+          </span>
+        ),
       },
       {
         Header: "Links",
-        Cell: e => <button onClick = {()=> handleEdit(e)}>Edit</button>,
+        Cell: (e) => <button onClick={() => handleEdit(e)}>Edit</button>,
       },
     ],
     []

@@ -45,9 +45,6 @@ function PasswordValidation(password) {
   const result = rankPassword(password);
   // message = labels[result] //? returns a num for the index of labels
 
-  // console.log("number", result);
-  // console.log("message", message);
-
   return result;
 }
 
