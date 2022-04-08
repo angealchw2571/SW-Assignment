@@ -5,6 +5,7 @@ import { userSessionAtom } from "./LoginPage";
 
 function Navbar() {
   const [sessionData, setSessionData] = useAtom(userSessionAtom);
+  console.log("sessionData", sessionData)
 
   const handleLogout = async () => {
     await axios
@@ -25,8 +26,11 @@ function Navbar() {
       <div style={{background:"pink", padding:10}}>
 
       <span>Welcome, {sessionData.username} </span><br/>
-      <span>Team assigned: {sessionData.group_name} </span>
-      <button style={{float: "right", marginRight:50}} onClick={handleLogout}>Logout</button>
+      <button style={{float: "right", marginRight:50, marginTop:10}} onClick={handleLogout}>Logout</button>
+      <span>Team assigned: {sessionData.group_name} </span> <br/>
+      <span>Permission Groups: {sessionData.role_groups.map((e)=> {
+        return(<li key={e}>{e}</li>)
+      })} </span>
       </div>
       </>
     )}

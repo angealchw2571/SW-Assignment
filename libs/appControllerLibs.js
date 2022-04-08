@@ -37,18 +37,39 @@ function FetchTask(AppAcronym) {
   });
 }
 
-function FetchAllApp() {
-
+function FetchApp(AppAcronym) {
   return new Promise((resolve, reject) => {
-    connection.query("SELECT * from application;", (err, result) => {
+    connection.query("SELECT * from application WHERE App_Acronym = ?;", [AppAcronym], (err, result) => {
       if (err) {
         return reject(err);
       } else {
-        console.log("fetch all app success");
         result.map((e) => {
           e.App_permit_Doing = JSON.parse(e.App_permit_Doing);
           e.App_permit_toDoList = JSON.parse(e.App_permit_toDoList);
           e.App_permit_Done = JSON.parse(e.App_permit_Done);
+        });
+        return resolve(result);
+      }
+    });
+  });
+}
+
+function FetchAllApp() {
+
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT *
+      FROM application, 
+      app_team_assignment 
+      WHERE app_team_assignment.App_Acronym = application.App_Acronym;`,
+      (err, result) => {
+      if (err) {
+        return reject(err);
+      } else {
+        result.map((e) => {
+          e.App_permit_Doing = JSON.parse(e.App_permit_Doing);
+          e.App_permit_toDoList = JSON.parse(e.App_permit_toDoList);
+          e.App_permit_Done = JSON.parse(e.App_permit_Done);
+          e.group_team_assignment = JSON.parse(e.group_team_assignment);
         });
         return resolve(result);
       }
@@ -109,6 +130,58 @@ function CreateNewApp(
   });
 }
 
+function UpdateApp(
+  app_acronym,
+  app_description,
+  app_startDate,
+  app_endDate,
+  app_permit_toDoList,
+  app_permit_doing,
+  app_permit_done,
+  app_Rnumber
+) {
+
+  app_permit_toDoList = JSON.stringify(app_permit_toDoList)
+  app_permit_doing = JSON.stringify(app_permit_doing)
+  app_permit_done = JSON.stringify(app_permit_done)
+  app_startDate = moment(app_startDate).format("YYYY-MM-DD")
+  app_endDate = moment(app_endDate).format("YYYY-MM-DD")
+  return new Promise((resolve, reject) => {
+    const sqlQuery = `UPDATE application SET 
+      App_Description = ?, 
+      App_Rnumber = ?, 
+      App_startDate = ?, 
+      App_endDate = ?, 
+      App_permit_toDoList = ?, 
+      App_permit_Doing = ?, 
+      App_permit_Done = ?
+      WHERE App_Acronym = ?
+      ;`;
+    connection.query(
+      sqlQuery,
+      [
+        app_description,
+        app_Rnumber,
+        app_startDate,
+        app_endDate,
+        app_permit_toDoList,
+        app_permit_doing,
+        app_permit_done,
+        app_acronym,
+      ],
+      (err, result) => {
+        if (err) {
+          console.log("err", err)
+          return reject(err);
+        } else {
+          console.log("Update application success");
+          return resolve(true);
+        }
+      }
+    );
+  });
+}
+
 function CreateNewPlan(
   Plan_App_Acronym,
   Plan_MVP_name,
@@ -145,13 +218,12 @@ function CreateNewTask(
   Task_owner,
   Task_createDate
 ) {
-  console.log(">>", notes);
   const jsonMSG = [{notes:notes}]
-
+  Task_createDate = moment(Task_createDate).format("YYYY-MM-DD")
 
   return new Promise((resolve, reject) => {
     const sqlQuery = `INSERT INTO task (Task_App_Acronym, Task_plan, Task_id, Task_name, Task_description, Task_notes, Task_state, Task_creator, Task_owner, Task_createDate) 
-      VALUES ( ?, ?, ?, ?,?, ?, ?, ?, ?, ?)`;
+      VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     connection.query(
       sqlQuery,
       [
@@ -181,7 +253,10 @@ function CreateNewTask(
 
 function FetchAppDetails(AppAcronym) {
   return new Promise((resolve, reject) => {
-    const sqlQuery = `SELECT * from application WHERE App_Acronym = ?`;
+    const sqlQuery = `SELECT
+    *
+    FROM application, app_team_assignment 
+    WHERE app_team_assignment.App_Acronym = application.App_Acronym AND application.App_Acronym = ?`;
     connection.query(sqlQuery, [AppAcronym], (err, result) => {
       if (err) {
         console.log(">>", err);
@@ -191,9 +266,10 @@ function FetchAppDetails(AppAcronym) {
           e.App_permit_Doing = JSON.parse(e.App_permit_Doing);
           e.App_permit_toDoList = JSON.parse(e.App_permit_toDoList);
           e.App_permit_Done = JSON.parse(e.App_permit_Done);
+          e.group_team_assignment = JSON.parse(e.group_team_assignment);
         });
         // console.log("fetch assignedgroup success", result);
-        console.log("result", result)
+        // console.log("result", result)
 
         return resolve(result);
       }
@@ -202,7 +278,6 @@ function FetchAppDetails(AppAcronym) {
 }
 
 function FetchGroupTeamAssignment(groupName) {
-  
   return new Promise((resolve, reject) => {
     const sqlQuery = `SELECT group_team_assignment, App_Acronym from app_team_assignment`;
     connection.query(sqlQuery, (err, result) => {
@@ -238,6 +313,173 @@ function AddAppTeamAssignment(App_Acronym, group_team_assignment){
 
 }
 
+function UpdateAppTeamAssignment(App_Acronym, group_team_assignment){
+  group_team_assignment = JSON.stringify(group_team_assignment)
+  const sqlQuery = `UPDATE app_team_assignment SET 
+  group_team_assignment = ? 
+  WHERE App_Acronym = ?;`
+
+  return new Promise((resolve, reject) => {
+    connection.query(sqlQuery, [group_team_assignment, App_Acronym], (err, result) => {
+      if (err) {
+        console.log(">>", err);
+        return reject(err);
+      } else {
+        // console.log("Add app team assignment success", result);
+        return resolve(result);
+      }
+    });
+  });
+
+}
+
+function FetchGroupTeamOnApp(App_Acronym){
+  return new Promise((resolve, reject) => {
+    const sqlQuery = `SELECT group_team_assignment from app_team_assignment WHERE App_Acronym = ?;`;
+    connection.query(sqlQuery, [App_Acronym], (err, result) => {
+      if (err) {
+        console.log(">>", err);
+        return reject(err);
+      } else {
+        // console.log("test success", result);
+        result.map((e=> {
+          e.group_team_assignment = JSON.parse(e.group_team_assignment)
+        }))
+        return resolve(result[0]);
+      }
+    });
+  });
+}
+
+//! ======================         unused function      ===========================
+function setTaskState(task_state, task_id){
+  return new Promise((resolve, reject) => {
+    const sqlQuery = `UPDATE task SET 
+    Task_state = ? 
+    WHERE Task_id = ?`;
+    connection.query(sqlQuery, [task_state, task_id], (err, result) => {
+      if (err) {
+        console.log(">>", err);
+        return reject(err);
+      } else {
+        // console.log("update taskstate with task_id success", result);
+        return resolve(result);
+      }
+    });
+  });
+}
+
+function UpdateTaskState(package) {
+  const size = Object.keys(package).length;
+  for (let i = 0; i < size; i++) {
+    const keyName = Object.keys(package)[i];
+    package[keyName].forEach((e) => {
+      setTaskState(keyName, e);
+    });
+  }
+}
+//! ======================         unused function      ===========================
+
+function FetchSingleTask(task_id ){
+  return new Promise((resolve, reject) => {
+    const sqlQuery = `SELECT * FROM task WHERE Task_id = ?`;
+    connection.query(sqlQuery, [task_id], (err, result) => {
+      if (err) {
+        console.log(">>", err);
+        return reject(err);
+      } else {
+        result.map((e)=> {
+          e.Task_notes = JSON.parse(e.Task_notes);
+        })
+        return resolve(result);
+      }
+    });
+  });
+}
+
+function FetchTaskNotes(task_id){
+  return new Promise((resolve, reject) => {
+    const sqlQuery = `SELECT Task_notes FROM task WHERE Task_id = ?`;
+    connection.query(sqlQuery, [task_id], (err, result) => {
+      if (err) {
+        console.log(">>", err);
+        return reject(err);
+      } else {
+        result.map((e)=> {
+          e.Task_notes = JSON.parse(e.Task_notes);
+        })
+        return resolve(result[0]);
+      }
+    });
+  });
+}
+
+function AddTaskNotes(newTaskNotes, task_id){
+  const jsonNewTaskNotes = JSON.stringify(newTaskNotes)
+  return new Promise((resolve, reject) => {
+    const sqlQuery = `UPDATE task SET Task_notes = ? WHERE Task_id = ?`;
+    connection.query(sqlQuery, [jsonNewTaskNotes, task_id], (err, result) => {
+      if (err) {
+        console.log(">>", err);
+        return reject(err);
+      } else {
+        console.log("result", result)
+        return resolve(result);
+      }
+    });
+  });
+}
+
+function FetchRnumber(app_acronym){
+  return new Promise((resolve, reject) => {
+    const sqlQuery = `SELECT App_Rnumber FROM application WHERE App_Acronym = ?`;
+    connection.query(sqlQuery, [app_acronym], (err, result) => {
+      if (err) {
+        console.log(">>", err);
+        return reject(err);
+      } else {
+        return resolve(result[0]);
+      }
+    });
+  });
+}
+
+function UpdateRnumber(app_acronym, Rnumber){
+  return new Promise((resolve, reject) => {
+    const sqlQuery = `UPDATE application SET 
+    App_Rnumber = ? 
+    WHERE App_Acronym = ?;`    
+    connection.query(sqlQuery, [Rnumber,app_acronym], (err, result) => {
+      if (err) {
+        console.log(">>", err);
+        return reject(err);
+      } else {
+        return resolve(result[0]);
+      }
+    });
+  });
+}
+
+function UpdateTask(task_id, taskState, taskOwner){
+  return new Promise((resolve, reject) => {
+    const sqlQuery = `UPDATE task SET 
+    Task_owner = ? ,
+    Task_state = ?
+    WHERE Task_id = ?;`    
+    connection.query(sqlQuery, [taskOwner, taskState,task_id], (err, result) => {
+      if (err) {
+        console.log(">>", err);
+        return reject(err);
+      } else {
+        return resolve(result);
+      }
+    });
+  });
+}
+
+
+
+
 module.exports = {
   FetchAllPlan,
   FetchAllApp,
@@ -247,5 +489,15 @@ module.exports = {
   CreateNewTask,
   FetchAppDetails,
   FetchGroupTeamAssignment,
-  AddAppTeamAssignment
+  AddAppTeamAssignment,
+  UpdateAppTeamAssignment,
+  FetchApp,
+  UpdateApp,
+  FetchGroupTeamOnApp,
+  FetchSingleTask,
+  FetchTaskNotes,
+  AddTaskNotes,
+  FetchRnumber,
+  UpdateRnumber,
+  UpdateTask
 };

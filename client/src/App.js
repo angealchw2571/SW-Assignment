@@ -20,7 +20,9 @@ import Authentication from "./components/Authentication";
 import AppHome from "./components/AppManagement/views/AppHome";
 import IndividualApp from "./components/AppManagement/views/IndividualApp";
 import CreateApp from "./components/AppManagement/CreateApp";
-import Test from "./components/AppManagement/views/Test";
+import EditApp from "./components/AppManagement/views/EditApp";
+import IndividualTask from "./components/TaskManagement/IndividualTask";
+import NewTask from "./components/TaskManagement/NewTask";
 
 function App() {
   const sessionData = useAtom(userSessionAtom)[0];
@@ -30,7 +32,7 @@ function App() {
       return false;
     } else if (sessionData.role_groups.includes("Admin")){
       return true
-    };
+    } 
   };
 
   const isLogged = () => {
@@ -41,7 +43,7 @@ function App() {
   const auth = isAuthorised();
   const logged = isLogged()
   
-  function PrivateRoute({ children }) {
+  function AdminRoute({ children }) {
     if (logged) {
       return auth ? children : <Navigate to="/auth" />;
     } else {
@@ -49,7 +51,7 @@ function App() {
     }
   }
 
-function HomeRoute({children}){
+function PrivateRoute({children}){
   return logged ? children : <Navigate to= '/error'/>
 }
   
@@ -60,24 +62,25 @@ function HomeRoute({children}){
         <Routes>
           <Route exact path="/" element={<Navigate replace to="/login" />} />
           <Route exact path="/login" element={<LoginPage />} />
-					<Route exact path="/home" element={<HomeRoute><Home/></HomeRoute>} />
-          <Route exact path="/users" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
-          <Route exact path="/user/:id" element={<PrivateRoute><User/></PrivateRoute>} />
-					<Route exact path="/profile/edit/pass/:id" element={<HomeRoute><EditPassword /></HomeRoute>} />
-          <Route exact path="/profile/edit/:id/" element={<HomeRoute><UpdateProfile /></HomeRoute>} />
-          <Route exact path="/profile/edit/status/:id" element={<PrivateRoute><Status /></PrivateRoute>} />
-          <Route exact path="/profile/edit/role/:id" element={<PrivateRoute><UpdatePermissions /></PrivateRoute>} />
-          <Route exact path="/profile/edit/reset/:id" element={<PrivateRoute><ResetPassword /></PrivateRoute>} />
-          <Route exact path="/new" element={<PrivateRoute><NewUser/></PrivateRoute>} />
-          <Route exact path="/newrole" element={<PrivateRoute><NewRole /></PrivateRoute>} />
+					<Route exact path="/home" element={<PrivateRoute><Home/></PrivateRoute>} />
+          <Route exact path="/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
+          <Route exact path="/user/:id" element={<AdminRoute><User/></AdminRoute>} />
+					<Route exact path="/profile/edit/pass/:id" element={<PrivateRoute><EditPassword /></PrivateRoute>} />
+          <Route exact path="/profile/edit/:id/" element={<PrivateRoute><UpdateProfile /></PrivateRoute>} />
+          <Route exact path="/profile/edit/status/:id" element={<AdminRoute><Status /></AdminRoute>} />
+          <Route exact path="/profile/edit/role/:id" element={<AdminRoute><UpdatePermissions /></AdminRoute>} />
+          <Route exact path="/profile/edit/reset/:id" element={<AdminRoute><ResetPassword /></AdminRoute>} />
+          <Route exact path="/new" element={<AdminRoute><NewUser/></AdminRoute>} />
+          <Route exact path="/newrole" element={<AdminRoute><NewRole /></AdminRoute>} />
           <Route path="/auth" element={<Authentication />} />
           <Route path="/error" element={<Error />} />
           {/* <Route path="/createtask" element={<CreateTask />} /> */}
-          <Route path="/app/home" element={<AppHome />} />
-          <Route path="/appcreate" element={<CreateApp />} />
-          <Route path="/app/edit/:appAcronym" element={<Test />} />
-          <Route path="/app/:appAcronym" element={<IndividualApp />} />
-          {/* <Route path="/test" element={<Test />} /> */}
+          <Route path="/app/newtask/:appAcronym" element={<PrivateRoute><NewTask /></PrivateRoute>} />
+          <Route path="/app/home" element={<PrivateRoute><AppHome /></PrivateRoute>} />
+          <Route path="/appcreate" element={<PrivateRoute><CreateApp /></PrivateRoute>} />
+          <Route path="/app/edit/:appAcronym" element={<PrivateRoute><EditApp /></PrivateRoute>} />
+          <Route path="/app/:appAcronym" element={<PrivateRoute><IndividualApp /></PrivateRoute>} />
+          <Route path="/apptask/:appAcronym/:taskID" element={<PrivateRoute><IndividualTask /></PrivateRoute>} />
         </Routes>
       </div>
     </BrowserRouter>

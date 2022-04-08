@@ -15,12 +15,12 @@ import Container from "@mui/material/Container";
 import { useNavigate } from "react-router-dom";
 
 function AppHome() {
-  const sessionData = useAtom(userSessionAtom)[0];
+  // const sessionData = useAtom(userSessionAtom)[0];
   const [networkStatus, setnetworkStatus] = useState("pending");
   const [appData, setAppData] = useState();
   let navigate = useNavigate();
-  console.log("sessionData", sessionData);
-  console.log("app", appData);
+  // console.log("sessionData", sessionData);
+  // console.log("app", appData);
 
   useEffect(() => {
     const getData = async () => {
@@ -40,13 +40,9 @@ function AppHome() {
     navigate(`/app/${App_Acronym}`);
   };
 
-
   const handleCreate = () => {
     navigate(`/appcreate`);
-  }
-
-
-
+  };
 
   return (
     <>
@@ -60,7 +56,7 @@ function AppHome() {
                 pb: 1,
               }}
             >
-              <Container sx={{ bgcolor: "lightblue" }} maxWidth="sm">
+              <Container sx={{ bgcolor: "pink" }} maxWidth="sm">
                 <Typography
                   component="h1"
                   variant="h2"
@@ -75,14 +71,14 @@ function AppHome() {
             <Box>
               <Button
                 sx={{
-                  bgcolor: "#ff8aae",
-                  color: "#f9f1f1",
+                  bgcolor: "pink",
+                  color: "black",
                   ":hover": {
-                    backgroundColor: "pink",
-                    color: "black",
+                    backgroundColor: "#ff8aae",
+                    color: "#f9f1f1",
                   },
                 }}
-                onClick= {handleCreate}
+                onClick={handleCreate}
               >
                 <Typography>Create new App</Typography>
               </Button>
@@ -128,9 +124,24 @@ function AppHome() {
                             {moment(e.App_endDate).format("Do MMM YYYY")}
                           </span>
                         </Typography>
+                        <Typography sx={{ fontSize: 14 }}>
+                          <div>
+                            Assigned Teams {e.group_team_assignment.map((e)=> {
+                              return <li key={e}>{e}</li>
+                            })}
+                          </div>
+                        </Typography>
                       </CardContent>
                       <CardActions>
                         <Button
+                        sx={{
+                          bgcolor: "pink",
+                          color: "black",
+                          ":hover": {
+                            backgroundColor: "#ff8aae",
+                            color: "#f9f1f1",
+                          },
+                        }}
                           size="small"
                           onClick={() => handleClick(e.App_Acronym)}
                         >

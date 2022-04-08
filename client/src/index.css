@@ -1,0 +1,22 @@
+.react-kanban-board {
+  /* background-color: #ebd276; */
+}
+
+.react-kanban-column {
+  /* background-color: #ebd276; */
+  width: 300px !important;
+}
+.react-kanban-card {
+    width: 300px !important;
+    /* background-color: #ebd276; */
+    
+}
+.react-kanban-card__title{
+    width: 300px !important;
+
+}
+.KanbanCardTitle{
+    width: 200px !important;
+
+}
+

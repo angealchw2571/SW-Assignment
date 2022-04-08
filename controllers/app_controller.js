@@ -2,7 +2,25 @@ const express = require("express");
 const router = express.Router();
 const TASKC = require("../libs/appControllerLibs.js");
 
-//* ======================    @     GET ALL APPLICATIONS       ==============================
+//* ======================    @     GET single APPLICATION w/ appAcronym       ==============================
+router.get("/apps/:appAcronym", async function (req, res) {
+  const {appAcronym} = req.params
+
+  try {
+    const data = await TASKC.FetchApp(appAcronym);
+    if (data[0]===undefined){
+      res.status(400).json({message:"No app found"});
+    }
+    else {
+      const result = await TASKC.FetchGroupTeamOnApp(appAcronym)
+      data[0].group_team_assignment = result.group_team_assignment
+      res.status(200).json(data);
+    }
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+//! ======================    @     GET ALL APPLICATIONS       ==============================
 
 router.get("/apps", async function (req, res) {
   try {
@@ -12,8 +30,6 @@ router.get("/apps", async function (req, res) {
     res.status(400).json(err);
   }
 });
-
-module.exports = router;
 
 //* ======================    @     GET ALL PLAN       ==============================
 router.get("/plans", async function (req, res) {
@@ -25,7 +41,7 @@ router.get("/plans", async function (req, res) {
   }
 });
 
-//* ======================    @     GET ALL TASK       ==============================
+//* ======================    @     GET ALL TASKS with AppAcronym       ==============================
 router.get("/tasks/:appAcronym", async function (req, res) {
   const {appAcronym} = req.params
 
@@ -33,6 +49,46 @@ router.get("/tasks/:appAcronym", async function (req, res) {
     const data = await TASKC.FetchTask(appAcronym);
     res.status(200).json(data);
   } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+//* ======================    @     GET single TASK with task_id       ==============================
+router.get("/task/:task_id", async function (req, res) {
+  const {task_id} = req.params
+  try {
+    const data = await TASKC.FetchSingleTask(task_id);
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+//* ======================    @     Add new tasknote with task_id       ==============================
+router.post("/tasknote/:task_id", async function (req, res) {
+  const {task_id} = req.params
+  const newNote = req.body
+
+  try {
+    const data = await TASKC.FetchTaskNotes(task_id);
+    const newData  = [...data.Task_notes, newNote ]
+    console.log("before", data.Task_notes)
+    console.log("after", newData)
+    const finalResult = await TASKC.AddTaskNotes(newData, task_id )
+    res.status(200).json(finalResult);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+//* ======================    @     Handle kanban        ==============================
+router.post("/kanban", async function (req, res) {
+    const data = req.body
+  try {
+    const result = await TASKC.UpdateTask(data.taskID, data.taskState, data.taskOwner)
+    res.status(200).json(result);
+  } catch (err) {
+    console.log("err", err)
     res.status(400).json(err);
   }
 });
@@ -101,6 +157,64 @@ router.post("/createapp", async function (req, res) {
   }
 });
 
+//* ======================    @@     Create new application      ==============================
+router.post("/updateapp", async function (req, res) {
+  const {
+    App_Acronym,
+    App_Description,
+    startDate,
+    endDate,
+    App_Rnumber,
+    permissionForm,
+  } = req.body;
+
+  const app_permit_toDoList = []
+  const app_permit_doing = []
+  const app_permit_done = []
+  const group_team_assignment = []
+
+  for (const [key, value] of Object.entries(permissionForm.form1)) {
+    if (value){
+      app_permit_toDoList.push(`${key}`)
+    }
+  }
+  for (const [key, value] of Object.entries(permissionForm.form2)) {
+    if(value){
+      app_permit_doing.push(`${key}`)
+    }
+  }
+  for (const [key, value] of Object.entries(permissionForm.form3)) {
+    if(value){
+      app_permit_done.push(`${key}`)
+    }
+  }
+  for (const [key, value] of Object.entries(permissionForm.groupForm)) {
+    if(value){
+      group_team_assignment.push(`${key}`)
+    }
+  }
+  try {
+    const data = await TASKC.UpdateApp(
+      App_Acronym,
+      App_Description,
+      startDate,
+      endDate,
+      app_permit_toDoList,
+      app_permit_doing,
+      app_permit_done,
+      App_Rnumber
+    );
+    if (data){
+      console.log("groupTeam", group_team_assignment)
+      TASKC.UpdateAppTeamAssignment(App_Acronym, group_team_assignment)
+      res.status(200).json({message:"Update success"});
+    }
+  } catch (err) {
+    console.log("err", err)
+    res.status(400).json(err);
+  }
+});
+
 //* =======================    @     Create new plan      ==============================
 router.post("/createplan", async function (req, res) {
   const { plan_app_acronym, plan_mvp_name, plan_startDate, plan_endDate } =
@@ -124,55 +238,79 @@ router.post("/createplan", async function (req, res) {
   }
 });
 
-//! =======================    @     Create new task      ==============================
+//* =======================    @     Create new task      ==============================
 router.post("/createtask", async function (req, res) {
-  const {
-    task_app_acronym,
-    task_plan,
-    task_id,
-    task_name,
-    task_description,
-    notes,
-  } = req.body;
+  const data = req.body;
+  
 
   try {
-    const data = await TASKC.CreateNewTask(
-      task_app_acronym,
-      task_plan,
-      task_id,
-      task_name,
-      task_description,
-      notes
+    const rNumber = await TASKC.FetchRnumber(data.appAcronym);
+    console.log("rnumber", rNumber.App_Rnumber)
+    const newRnumber = rNumber.App_Rnumber + 1
+    console.log("newRnumber", newRnumber, typeof newRnumber)
+    const newTaskID = `${data.appAcronym}_${rNumber.App_Rnumber}`;
+    data.taskID = newTaskID;
+    const result = await TASKC.CreateNewTask(
+      data.appAcronym,
+      "NULL",
+      data.taskID,
+      data.taskName,
+      data.taskDescription,
+      data.taskNote,
+      data.taskState,
+      data.taskCreator,
+      data.taskOwner,
+      data.taskCreateDate
     );
-    res.status(200).json(data);
+    TASKC.UpdateRnumber(data.appAcronym, newRnumber)
+    res.status(200).json(result);
+  } catch (err) {
+    console.log("err", err)
+    res.status(400).json(err);
+  }
+});
+
+//* ================    @     Fetches app according to team assigned      ==============================
+router.get("/appgroups", async function (req, res) {
+  let appArr = []
+  let package = []
+  const team = req.session.teams
+  const {role_groups} = req.session.loginUser
+  console.log(">>>>>", role_groups)
+
+  try {
+    if (role_groups.includes("Admin")) {
+      const data = await TASKC.FetchAllApp();
+      res.status(200).json(data);
+    } else {
+      const result = await TASKC.FetchGroupTeamAssignment(team);
+      for (let i = 0; i < result.length; i++) {
+        result[i].group_team_assignment.forEach((e) => {
+          if (e === team) {
+            appArr.push(result[i].App_Acronym);
+          }
+        });
+      }
+
+      for (let i = 0; i < appArr.length; i++) {
+        const result2 = await TASKC.FetchAppDetails(appArr[i]);
+        // console.log("result2", result2)
+        package.push(result2[0]);
+      }
+      res.status(200).json(package);
+    }
   } catch (err) {
     res.status(400).json(err);
   }
 });
 
-//? ------------------------------------ test route ----------------------------
+//* ======================    @     Fetches Group Assigned to App     ==============================
+router.get("/appgroups/:appAcronym", async function (req, res) {
+  const {appAcronym} = req.params
 
-router.get("/appgroups", async function (req, res) {
-  let appArr = []
-  let package = []
-  const team = req.session.teams
   try {
-    const result = await TASKC.FetchGroupTeamAssignment(team);
-    for (let i=0; i < result.length ; i++){
-      result[i].group_team_assignment.forEach((e)=> {
-        if (e === team){
-          appArr.push(result[i].App_Acronym)
-        }
-      })
-    }
-    
-    console.log("appArr", appArr);
-    for (let i =0; i < appArr.length; i++){
-      const result2 = await TASKC.FetchAppDetails(appArr[i])
-      // console.log("result2", result2)
-      package.push(result2[0])
-    }
-    res.status(200).json(package);
+    const data = await TASKC.FetchGroupTeamOnApp(appAcronym);
+    res.status(200).json(data);
   } catch (err) {
     res.status(400).json(err);
   }

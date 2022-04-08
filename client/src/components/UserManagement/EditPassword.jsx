@@ -50,6 +50,7 @@ function EditPassword() {
 
   const handlePassword1 = (event) => {
     setPassword1(event.target.value);
+    // console.log(event.target.value)
   };
   const handlePassword2 = (event) => {
     setPassword2(event.target.value);

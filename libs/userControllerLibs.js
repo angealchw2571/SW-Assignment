@@ -75,7 +75,6 @@ function FindUserData(username) {
     );
   });
 }
-
 //* =============================  fetch profile details with id   =============================
 function FetchProfileData(id) {
   return new Promise((resolve, reject) => {
@@ -423,7 +422,6 @@ function CreateNewRole(role_name, role_description) {
     });
   });
 }
-
 
 //* =============================  fetch profile details with id   =============================
 function FetchAllGroups() {
