@@ -91,26 +91,24 @@ router.post("/edit/reset/:id", async function (req, res) {
 
 router.post("/permissions/:id", async function (req, res) {
   const { id } = req.params;
-  const {role_groups, groupName} = req.body
+  const { role_groups, groupName } = req.body;
 
-  console.log("groupName", groupName)
+  console.log("groupName", groupName);
   try {
-    const username = await USERC.FetchUsername(id)
-    const result = await USERC.UpdatePermissions(role_groups, username)
-    const result2 = await USERC.UpdateGroupTeamsAssignment(username, groupName)
-    if (result2){
+    const username = await USERC.FetchUsername(id);
+    const result = await USERC.UpdatePermissions(role_groups, username);
+    const result2 = await USERC.UpdateGroupTeamsAssignment(username, groupName);
+    if (result2) {
       res.status(200).json({ message: "User permission change successful" });
     }
-  
   } catch (err) {
     console.log("error from catching block", err);
     res.status(400).json(err);
   }
 });
 
-
 //* ======================  @       GET ALL ROLE DATA       ==============================
-router.get("/checkroles", async function (req, res) { 
+router.get("/checkroles", async function (req, res) {
   try {
     const data = await USERC.FetchAllRolesData();
     res.status(200).json(data);
@@ -119,13 +117,12 @@ router.get("/checkroles", async function (req, res) {
   }
 });
 
-
-//! ====================   @      CHECKGROUP SINGLE ID   CHECK THIS AGAIN      ==============================
+//* ====================   @      CHECKGROUP SINGLE ID   CHECK THIS AGAIN      ==============================
 router.get("/checkrole/:id/:roleName", async function (req, res) {
   const { roleName, id } = req.params;
   try {
     const username = await USERC.FetchUsername(id);
-    const roleGroup = await USERC.RoleGroupFetch(username)
+    const roleGroup = await USERC.RoleGroupFetch(username);
     const result = await USERC.CheckRole(roleGroup[0].role_groups, roleName);
     if (result) res.status(200).json({ message: "User in this group" });
     else res.status(400).json({ message: "User not in this group" });
@@ -134,26 +131,25 @@ router.get("/checkrole/:id/:roleName", async function (req, res) {
   }
 });
 
-
 //* ======================   @      CREATE NEW ROLE       ==============================
-router.post("/newrole", async function (req, res) { 
-  const {role_name, role_description } = req.body;
+router.post("/newrole", async function (req, res) {
+  const { role_name, role_description } = req.body;
   try {
     await USERC.CreateNewRole(role_name, role_description);
-        res.status(200).json({ message: "New Role Created Successfully" });
+    res.status(200).json({ message: "New Role Created Successfully" });
   } catch (error) {
     console.log("error from catch blockkkk", error);
   }
 });
 
 //* ======================   @      CREATE NEW USER       ==============================
-router.post("/new", async function (req, res) { 
+router.post("/new", async function (req, res) {
   const { username, password, role_groups, groupName } = req.body;
   try {
     const result = await USERC.CreateNewUser(username, password, role_groups);
     if (result) {
       const userID = await USERC.FetchID(username);
-      await USERC.AddGroupTeamsAssignment(username, groupName)
+      await USERC.AddGroupTeamsAssignment(username, groupName);
       const finalResult = await USERC.CreateNewProfile(userID, username);
       if (finalResult) {
         res.status(200).json({ message: "User Created Successfully" });
@@ -167,7 +163,7 @@ router.post("/new", async function (req, res) {
 });
 
 //* ======================    @     GET ALL GROUPS        ==============================
-router.get("/groups", async function (req, res) { 
+router.get("/groups", async function (req, res) {
   try {
     const data = await USERC.FetchAllGroups();
     res.status(200).json(data);
@@ -176,16 +172,21 @@ router.get("/groups", async function (req, res) {
   }
 });
 //* ======================   @      GET SPECIFIC USER       ==============================
-router.get("/:id", async function (req, res) {  
+router.get("/:id", async function (req, res) {
   const { id } = req.params;
 
   try {
     const username = await USERC.FetchUsername(id);
     const profileData = await USERC.FetchProfileData(id);
-    const groupData = await USERC.FetchGroupDetails(username)
+    const groupData = await USERC.FetchGroupDetails(username);
     const roleData = await USERC.RoleGroupFetch(username);
     const userData = await USERC.FindUserDataID(id);
-    const updatedData = { ...profileData, ...userData[0], ...roleData[0], ...groupData[0] };
+    const updatedData = {
+      ...profileData,
+      ...userData[0],
+      ...roleData[0],
+      ...groupData[0],
+    };
     delete updatedData.password;
     res.status(200).json(updatedData);
   } catch (error) {
@@ -195,7 +196,7 @@ router.get("/:id", async function (req, res) {
 });
 
 //* ======================    @     GET ALL USER       ==============================
-router.get("/", async function (req, res) { 
+router.get("/", async function (req, res) {
   try {
     const data = await USERC.FindAllUser();
     res.status(200).json(data);
@@ -205,32 +206,50 @@ router.get("/", async function (req, res) {
 });
 
 //* ======================  @       GET SPECIFIC GROUP       ==============================
-router.get("/checkgroup/:roleName", async function (req, res) { 
+router.get("/checkgroup/:roleName", async function (req, res) {
   const { roleName } = req.params;
-  // const roleName="Project Lead"
-  let package = []
+  let package = [];
   try {
-    const allUsers = await USERC.FindAllUser()
-    console.log("allUsers", allUsers)
-    for (let i=0; i < allUsers.length; i++) {
-      const username =  await USERC.FetchUsername(allUsers[i].user_id);
-      console.log("step1")
-      const roleGroup =  await USERC.RoleGroupFetch(username)
-      console.log("step2", roleGroup)
+    const allUsers = await USERC.FindAllUser();
+    console.log("allUsers", allUsers);
+    for (let i = 0; i < allUsers.length; i++) {
+      const username = await USERC.FetchUsername(allUsers[i].user_id);
+      console.log("step1");
+      const roleGroup = await USERC.RoleGroupFetch(username);
+      console.log("step2", roleGroup);
       const result = await USERC.CheckRole(roleGroup[0].role_groups, roleName);
-      console.log("step3", result)
+      console.log("step3", result);
       if (result === true) {
-        package.push(allUsers[i])
+        package.push(allUsers[i]);
       }
     }
-      console.log("package", package)
+    console.log("package", package);
     res.status(200).json(package);
   } catch (error) {
     console.log("error from catch block", error);
   }
 });
 
-
+//* ======================  @       GET SPECIFIC GROUP       ==============================
+router.get("/checkgroup2/:groupName", async function (req, res) {
+  const { groupName } = req.params;
+  let package = [];
+  try {
+    const allUsers = await USERC.FindAllUser();
+    const usersWithGroupName = await USERC.FetchAllUsersWithGroup(groupName);
+    for (let i = 0; i < allUsers.length; i++) {
+      for (let x = 0; x < usersWithGroupName.length; x++) {
+        if (usersWithGroupName[x].username === allUsers[i].username) {
+          package.push(allUsers[i]);
+        }
+      }
+    }
+    console.log("package", package);
+    res.status(200).json(package);
+  } catch (error) {
+    console.log("error from catch block", error);
+  }
+});
 
 //! ======================         Test       ==============================
 
@@ -247,8 +266,6 @@ router.get("/checkgroup/:roleName", async function (req, res) {
 //     res.status(400).json(err);
 //   }
 // });
-
-
 
 //! ====================         EDIT EMAIL & STATUS        ==============================
 

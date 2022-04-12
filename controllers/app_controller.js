@@ -291,7 +291,7 @@ router.get("/appgroups", async function (req, res) {
   let package = []
   const team = req.session.teams
   const {role_groups} = req.session.loginUser
-  console.log(">>>>>", role_groups)
+  // console.log(">>>>>", role_groups)
 
   try {
     if (role_groups.includes("Admin")) {

@@ -35,7 +35,7 @@ function CheckPassword(username, password) {
   });
 }
 
-//! =============================      fetch userData with id    =============================
+//* =============================      fetch userData with id    =============================
 function FindUserDataID(id) {
   return new Promise((resolve, reject) => {
     connection.query(
@@ -56,26 +56,6 @@ function FindUserDataID(id) {
   });
 }
 
-// //? =============================      fetch Email with username    =============================
-// function FindUserDataID(id) {
-//   return new Promise((resolve, reject) => {
-//     connection.query(
-//       "SELECT * FROM profiles WHERE user_id = ?;",
-//       [id],
-//       (err, result) => {
-//         if (err) {
-//           return reject(err);
-//         } else if (result[0] === undefined) {
-//           console.log("user not found");
-//           return resolve(false);
-//         } else {
-//           console.log("user found");
-//           return resolve(result);
-//         }
-//       }
-//     );
-//   });
-// }
 //* =============================        for login       =============================
 function FindUserData(username) {
   return new Promise((resolve, reject) => {
@@ -89,7 +69,7 @@ function FindUserData(username) {
           console.log("user not found");
           return resolve(false);
         } else {
-          console.log("user found");
+          // console.log("user found");
           return resolve(result);
         }
       }
@@ -294,7 +274,7 @@ function FetchRoleData(role_name) {
   });
 }
 
-//! =============================        fetch all users from a certain group      =============================
+//* =============================        fetch all users from a certain group      =============================
 function FetchGroupUsers(role_name) {
   const sqlQuery = `SELECT 
   users.user_id, 
@@ -477,6 +457,23 @@ function FetchGroupDetails(username) {
   });
 }
 
+//! =============================  fetch group with username   =============================
+function FetchAllUsersWithGroup(group_name) {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "SELECT * FROM group_teams_assignment WHERE group_name = ?;",
+      [group_name],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        } else {
+          return resolve(result);
+        }
+      }
+    );
+  });
+}
+
 //* =============================  Add new group_teams_assignment   =============================
 function AddGroupTeamsAssignment(username, groupName) {
   return new Promise((resolve, reject) => {
@@ -536,5 +533,6 @@ module.exports = {
   FetchAllGroups,
   FetchGroupDetails,
   AddGroupTeamsAssignment,
-  UpdateGroupTeamsAssignment
+  UpdateGroupTeamsAssignment,
+  FetchAllUsersWithGroup
 };
