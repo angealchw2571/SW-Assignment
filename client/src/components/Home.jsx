@@ -3,6 +3,8 @@ import { useAtom } from "jotai";
 import { useNavigate } from "react-router-dom";
 import { userSessionAtom } from "./LoginPage";
 import axios from "axios";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 
 function Home() {
   const sessionData = useAtom(userSessionAtom)[0];
@@ -64,9 +66,7 @@ function Home() {
                 );
               })}
             </li>
-            <li>
-              Assigned Team: {userData.group_name}
-            </li>
+            <li>Assigned Team: {userData.group_name}</li>
 
             <li>
               Status:{" "}
@@ -80,21 +80,41 @@ function Home() {
           <button onClick={() => handleEdit("password")}> Edit password</button>
           <button onClick={() => handleEdit("profile")}> Edit profile</button>
           <p />
+          <div style={{gap: "10px", display: "flex"}}>
           {sessionData.role_groups.includes("Admin") ? (
-            <button onClick={() => handleClick("users")}>
-              {" "}
-              User Management
-            </button>
+            <Button
+            sx={{
+              bgcolor: "#ff8aae",
+              color: "#f9f1f1",
+              ":hover": {
+                backgroundColor: "pink",
+                color: "black",
+              },
+            }}
+            onClick={() => handleClick("users")}>
+            <Typography>User Management</Typography>
+          </Button>
           ) : null}
+          <Button
+            sx={{
+              bgcolor: "#ff8aae",
+              color: "#f9f1f1",
+              ":hover": {
+                backgroundColor: "pink",
+                color: "black",
+              },
+            }}
+            onClick={() => handleClick("app")}>
+            <Typography>Application Management</Typography>
+          </Button>
+          </div>
           {/* {sessionData.role_groups.includes("Admin") ||
           sessionData.role_groups.includes("Project Manager") ? (
             <button onClick={() => handleClick("app")}>
               Application Management
             </button>
           ) : null} */}
-          <button onClick={() => handleClick("app")}>
-              Application Management
-            </button>
+          
         </>
       ) : null}
     </>

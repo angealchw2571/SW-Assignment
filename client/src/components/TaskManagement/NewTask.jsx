@@ -7,6 +7,9 @@ import { useAtom } from "jotai";
 import { userSessionAtom } from "../LoginPage";
 import Button from "@mui/material/Button";
 import axios from "axios";
+import Typography from "@mui/material/Typography";
+import { styled } from '@mui/material/styles';
+
 
 function NewTask() {
   const { appAcronym } = useParams();
@@ -14,6 +17,26 @@ function NewTask() {
   const [sessionData, setSessionData] = useAtom(userSessionAtom);
   console.log("sessionData", sessionData);
   let navigate = useNavigate();
+
+  const CustomTextField = styled(TextField)({
+    '& label.Mui-focused': {
+      color: '#ff8aae',
+      border: "5px",
+      borderRadius: `4px 0 0 4px`,
+    },
+    '& .MuiInput-underline:after': {
+      borderBottomColor: 'green',
+    },
+    '& .MuiOutlinedInput-root': {
+      '&:hover fieldset': {
+        borderColor: 'pink',
+        borderWidth: "2px"
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#ff8aae',
+      },
+    },
+  });
 
   const handleQuery = async (data) => {
     await axios
@@ -51,10 +74,10 @@ function NewTask() {
   };
   return (
     <>
-      <Box sx={{display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",}}>
-                    <h1>Create new task</h1>
+      <Box
+        sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+      >
+        <h1>Create new task</h1>
         <Box
           component="form"
           noValidate
@@ -63,31 +86,34 @@ function NewTask() {
         >
           <Grid container spacing={2}>
             <Grid item xs={12} sm={12}>
-              <TextField
+              <CustomTextField
                 name="taskName"
                 required
                 fullWidth
                 id="taskName"
                 label="Task Name"
+                color="secondary"
                 autoFocus
               />
             </Grid>
             <Grid item xs={12} sm={12}>
-              <TextField
+              <CustomTextField
                 name="taskDescription"
                 required
                 fullWidth
                 id="taskDescription"
                 label="Task Description"
+                color="secondary"
                 autoFocus
               />
             </Grid>
             <Grid item xs={12} sm={12}>
-              <TextField
+              <CustomTextField
                 name="taskNote"
                 fullWidth
                 id="taskNotes"
                 label="Task Note"
+                color="secondary"
                 autoFocus
               />
             </Grid>
@@ -96,12 +122,36 @@ function NewTask() {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, mb: 2 }}
+            sx={{
+              mt: 3,
+              mb: 2,
+              bgcolor: "pink",
+              color: "black",
+              ":hover": {
+                backgroundColor: "#ff8aae",
+                color: "#f9f1f1",
+              },
+            }}
           >
-            Add note
+            Add Task
           </Button>
         </Box>
       </Box>
+        <Box>
+              <Button
+                sx={{
+                  bgcolor: "pink",
+                  color: "black",
+                  ":hover": {
+                    backgroundColor: "#ff8aae",
+                    color: "#f9f1f1",
+                  },
+                }}
+                onClick={ ()=> navigate(`/app/${appAcronym}`)}
+              >
+                <Typography>Back</Typography>
+              </Button>
+            </Box>
     </>
   );
 }

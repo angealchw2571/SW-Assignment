@@ -64,6 +64,9 @@ function UserManagement() {
           <Link to="/newrole">
             <button>Create new role</button>
           </Link>
+          <Link to="/newgroup">
+            <button>Create new group</button>
+          </Link>
         </span>
       ) : null}
         <p />

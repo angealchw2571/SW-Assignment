@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const TASKC = require("../libs/appControllerLibs.js");
+const USERC = require("../libs/userControllerLibs.js")
+const EMAILC = require("../email.js")
 
 //* ======================    @     GET single APPLICATION w/ appAcronym       ==============================
 router.get("/apps/:appAcronym", async function (req, res) {
@@ -238,6 +240,19 @@ router.post("/createplan", async function (req, res) {
   }
 });
 
+//* =======================    @     Create new plan      ==============================
+router.post("/creategroup", async function (req, res) {
+  const { group_name } = req.body;
+  console.log("groupname in express", group_name);
+
+  try {
+    const data = await TASKC.CreateNewGroup(group_name);
+    res.status(200).json({message:"Success"});
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
 //* =======================    @     Create new task      ==============================
 router.post("/createtask", async function (req, res) {
   const data = req.body;
@@ -315,5 +330,36 @@ router.get("/appgroups/:appAcronym", async function (req, res) {
     res.status(400).json(err);
   }
 });
+
+
+//! ======================    @     FEmail route   ==============================
+router.post("/appgroups/email", async function (req, res) {
+  const { userID, groupName } = req.body;
+  const roleName="Project Lead"
+  let package = []
+  try {
+    const allUsers = await USERC.FindAllUser()
+    // console.log("allUsers", allUsers)
+    for (let i=0; i < allUsers.length; i++) {
+      const username =  await USERC.FetchUsername(allUsers[i].user_id);
+      const roleGroup =  await USERC.RoleGroupFetch(username)
+      const result = await USERC.CheckRole(roleGroup[0].role_groups, roleName);
+      if (result === true) {
+        if (allUsers[i].group_name == groupName){
+          package.push(allUsers[i])
+          const leadData = await USERC.FetchProfileData(allUsers[i].user_id)
+          const devData = await USERC.FetchProfileData(userID)
+          EMAILC.SendDoneEmail(devData.email, leadData.email)
+          
+        }
+      }
+    }
+    res.status(200).json(package);
+  } catch (error) {
+    console.log("error from catch block", error);
+  }
+});
+
+
 
 module.exports = router;

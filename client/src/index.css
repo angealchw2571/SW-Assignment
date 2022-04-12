@@ -1,3 +1,7 @@
+/* @import url("https://fonts.googleapis.com/css2?family=Roboto:ital@1&display=swap"); */
+
+@import url("https://fonts.googleapis.com/css2?family=Anek+Bangla&display=swap");
+
 .react-kanban-board {
   /* background-color: #ebd276; */
 }
@@ -7,16 +11,73 @@
   width: 300px !important;
 }
 .react-kanban-card {
-    width: 300px !important;
-    /* background-color: #ebd276; */
-    
+  width: 300px !important;
+  /* background-color: #ebd276; */
 }
-.react-kanban-card__title{
-    width: 300px !important;
-
+.react-kanban-card__title {
+  width: 300px !important;
 }
-.KanbanCardTitle{
-    width: 200px !important;
-
+.KanbanCardTitle {
+  width: 200px !important;
 }
 
+body,
+html,
+p,
+span,
+div,
+h4,
+h3,
+h2,
+h1 {
+  font-family: "Anek Bangla", sans-serif !important ;
+}
+
+/* input:focus {
+  border: 1px solid pink;
+} */
+
+/* input:focus {
+  outline: none !important;
+  border-color: #719ece;
+  box-shadow: 0 0 10px pink;
+}
+textarea:focus {
+  outline: none !important;
+  border-color: #719ece;
+  box-shadow: 0 0 10px pink;
+} */
+
+/* .MuiInput-underline:after, label.Mui-focused {
+  borderBottomColor: 'green';
+  color: 'green';
+}
+.Mui-focused fieldset {
+  borderBottomColor: 'green';
+  color: 'green';
+  borderColor:"green"
+}*/
+/* 
+.MuiOutlinedInput-root {
+  bordercolor: "pink" !important;
+  border: 0 !important;
+} */
+/* 
+#App_Acronym:focus {
+  border: 5px solid orange !important;
+}
+
+input:focus {
+  border: 0 !important;
+  outline: 0 !important;
+}
+
+.MuiOutlinedInput-input:focus,
+.MuiInputBase-input:focus,
+.css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input:focus,
+.Mui-focused,
+.Mui-selected,
+.Mui-focusVisible {
+  border: 50px solid orange !important;
+  color: red;
+} */

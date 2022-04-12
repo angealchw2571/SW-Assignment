@@ -1,6 +1,4 @@
 import { React, useEffect, useState } from "react";
-import { useAtom } from "jotai";
-import { userSessionAtom } from "../../LoginPage";
 import axios from "axios";
 import moment from "moment";
 import Button from "@mui/material/Button";
@@ -15,12 +13,9 @@ import Container from "@mui/material/Container";
 import { useNavigate } from "react-router-dom";
 
 function AppHome() {
-  // const sessionData = useAtom(userSessionAtom)[0];
   const [networkStatus, setnetworkStatus] = useState("pending");
   const [appData, setAppData] = useState();
   let navigate = useNavigate();
-  // console.log("sessionData", sessionData);
-  // console.log("app", appData);
 
   useEffect(() => {
     const getData = async () => {
@@ -153,6 +148,23 @@ function AppHome() {
                 ))}
               </Grid>
             </Container>
+            <Box>
+              <Button
+                sx={{
+                  bgcolor: "pink",
+                  color: "black",
+                  marginLeft:2,
+                  margin:10,
+                  ":hover": {
+                    backgroundColor: "#ff8aae",
+                    color: "#f9f1f1",
+                  },
+                }}
+                onClick={ ()=> navigate(`/home`)}
+              >
+                <Typography>Back</Typography>
+              </Button>
+            </Box>
           </main>
         </>
       ) : null}

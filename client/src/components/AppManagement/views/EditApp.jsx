@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -15,6 +15,8 @@ import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
+import { styled } from '@mui/material/styles';
+
 
 const moment = require("moment");
 
@@ -34,7 +36,27 @@ function EditApp() {
     groupForm: {},
   });
 
-  console.log("appdata", appData);
+  // console.log("appdata", appData);
+
+  const CustomTextField = styled(TextField)({
+    '& label.Mui-focused': {
+      color: '#ff8aae',
+      border: "5px",
+      borderRadius: `4px 0 0 4px`,
+    },
+    '& .MuiInput-underline:after': {
+      borderBottomColor: 'green',
+    },
+    '& .MuiOutlinedInput-root': {
+      '&:hover fieldset': {
+        borderColor: 'pink',
+        borderWidth: "2px"
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#ff8aae',
+      },
+    },
+  });
 
   useEffect(() => {
     const getData = async () => {
@@ -201,7 +223,7 @@ function EditApp() {
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={12}>
-                  <TextField
+                  <CustomTextField
                     name="App_Description"
                     fullWidth
                     id="App_Acronym"
@@ -211,7 +233,7 @@ function EditApp() {
                   />
                 </Grid>
                 <Grid item xs={12} sm={12}>
-                  <TextField
+                  <CustomTextField
                     name="App_Rnumber"
                     fullWidth
                     id="App_Rnumber"
@@ -228,7 +250,7 @@ function EditApp() {
                       onChange={(newValue) => {
                         setStartDate(newValue);
                       }}
-                      renderInput={(params) => <TextField {...params} />}
+                      renderInput={(params) => <CustomTextField {...params} />}
                     />
                   </LocalizationProvider>
                 </Grid>
@@ -240,7 +262,7 @@ function EditApp() {
                       onChange={(newValue) => {
                         setEndDate(newValue);
                       }}
-                      renderInput={(params) => <TextField {...params} />}
+                      renderInput={(params) => <CustomTextField {...params} />}
                     />
                   </LocalizationProvider>
                 </Grid>
@@ -361,12 +383,38 @@ function EditApp() {
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={{
+                  mt: 3,
+                  mb: 2,
+                  bgcolor: "#ff8aae",
+                  color: "#f9f1f1",
+                  ":hover": {
+                    backgroundColor: "pink",
+                    color: "black",
+                  },
+                }}
               >
                 Update App
               </Button>
             </Box>
           </Container>
+            <Box>
+              <Button
+                sx={{
+                  bgcolor: "pink",
+                  marginLeft:5,
+                  margin:10,
+                  color: "black",
+                  ":hover": {
+                    backgroundColor: "#ff8aae",
+                    color: "#f9f1f1",
+                  },
+                }}
+                onClick={() => navigate(`/app/${appAcronym}`)}
+              >
+                <Typography>Back</Typography>
+              </Button>
+            </Box>
         </>
       ) : null}
     </>

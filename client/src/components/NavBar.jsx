@@ -2,10 +2,11 @@ import React from "react";
 import axios from "axios";
 import { useAtom } from "jotai";
 import { userSessionAtom } from "./LoginPage";
+// import { styled } from '@mui/material/styles';
+
 
 function Navbar() {
   const [sessionData, setSessionData] = useAtom(userSessionAtom);
-  console.log("sessionData", sessionData)
 
   const handleLogout = async () => {
     await axios
@@ -21,10 +22,9 @@ function Navbar() {
 
   return (
     <>
-    {sessionData.user_id === undefined ? null: (
+    {sessionData.user_id === undefined ? null : (
       <>
       <div style={{background:"pink", padding:10}}>
-
       <span>Welcome, {sessionData.username} </span><br/>
       <button style={{float: "right", marginRight:50, marginTop:10}} onClick={handleLogout}>Logout</button>
       <span>Team assigned: {sessionData.group_name} </span> <br/>

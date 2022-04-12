@@ -42,7 +42,7 @@ export default function TaskNotes({ taskData, tNotes, getData }) {
 
   return (
     <>
-      <Grid sx={{ flexGrow: 1, paddingBottom: 20 }} container spacing={1}>
+      <Grid sx={{ flexGrow: 1, paddingBottom: 10 }} container spacing={1}>
         <Grid item xs={12}>
           <Grid container spacing={2}>
             <Grid item>
@@ -103,18 +103,23 @@ export default function TaskNotes({ taskData, tNotes, getData }) {
                           </ListItemButton>
                         );
                       })}
-
                       <Button
-                        onClick={handleOpen}
-                        variant="outlined"
                         sx={{
                           float: "right",
                           marginRight: 6,
                           marginBottom: 2,
+                          bgcolor: "pink",
+                          color: "black",
+                          ":hover": {
+                            backgroundColor: "#ff8aae",
+                            color: "#f9f1f1",
+                          },
                         }}
+                        onClick={handleOpen}
                       >
-                        <Typography>Add notes</Typography>
+                        <Typography>Add Notes</Typography>
                       </Button>
+
                       <Modal
                         open={modalOpen}
                         onClose={handleClose}

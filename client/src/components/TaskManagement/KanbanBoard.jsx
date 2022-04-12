@@ -1,8 +1,11 @@
 import Board, { moveCard } from "@asseinfo/react-kanban";
+import Button from "@mui/material/Button";
 import "@asseinfo/react-kanban/dist/styles.css";
 import { React, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import Typography from "@mui/material/Typography";
+
 const moment = require("moment");
 const checkPermissions = require("../checkPermissions");
 
@@ -11,6 +14,7 @@ function KanbanBoard({ taskData, appAcronym, sessionData, appData, getData }) {
   let TODO = [];
   let DOING = [];
   let DONE = [];
+  // console.log()
 
   for (let i = 0; i < taskData.length; i++) {
     if (taskData[i].Task_state === "TODO") {
@@ -48,7 +52,22 @@ function KanbanBoard({ taskData, appAcronym, sessionData, appData, getData }) {
               <br />
               Date Created: {moment(e.Task_createDate).format("DD-MMM-YYYY")}
             </p>
-            <Link to={`/apptask/${appAcronym}/${e.Task_id}`}>View more</Link>
+            <Link to={`/apptask/${appAcronym}/${e.Task_id}`} style={{textDecoration: 'none',}}>
+            <Button
+          size="small"
+          sx={{
+            mt: 3,
+            mb: 2,
+            bgcolor: "pink",
+            color: "black",
+            ":hover": {
+              backgroundColor: "#ff8aae",
+              color: "#f9f1f1",
+            },
+          }}
+        >
+          <Typography>View more</Typography>
+        </Button></Link>
           </div>
         ),
       };
@@ -87,12 +106,11 @@ function KanbanBoard({ taskData, appAcronym, sessionData, appData, getData }) {
   };
 
   const [controlledBoard, setBoard] = useState(board);
-  
 
   const handleQuery2 = async (data) => {
     await axios
       .post(`/api/app/kanban`, data)
-      .then((res)=> {
+      .then((res) => {
         // console.log("res", res.data)
       })
       .catch(function (error) {
@@ -101,7 +119,17 @@ function KanbanBoard({ taskData, appAcronym, sessionData, appData, getData }) {
       });
   };
 
-  const handleCardMove = (_card, source, destination) =>{
+  const handleEmail = async (data) => {
+    await axios
+      .post(`/api/app/appgroups/email`, data)
+      .then((res) => {})
+      .catch(function (error) {
+        alert(error);
+        console.log(error);
+      });
+  };
+
+  const handleCardMove = (_card, source, destination) => {
     const updatedBoard = moveCard(controlledBoard, source, destination);
     if (destination.toColumnId === 1) {
       const permission = checkPermissions(
@@ -113,8 +141,12 @@ function KanbanBoard({ taskData, appAcronym, sessionData, appData, getData }) {
         return;
       } else {
         setBoard(updatedBoard);
-        handleQuery2({taskID:_card.id, taskOwner: sessionData.username, taskState:"OPEN"})
-        getData()
+        handleQuery2({
+          taskID: _card.id,
+          taskOwner: sessionData.username,
+          taskState: "OPEN",
+        });
+        getData();
       }
     } else if (destination.toColumnId === 2) {
       const permission = checkPermissions(
@@ -126,8 +158,12 @@ function KanbanBoard({ taskData, appAcronym, sessionData, appData, getData }) {
         return;
       } else {
         setBoard(updatedBoard);
-        handleQuery2({taskID:_card.id, taskOwner: sessionData.username, taskState:"TODO"})
-        getData()
+        handleQuery2({
+          taskID: _card.id,
+          taskOwner: sessionData.username,
+          taskState: "TODO",
+        });
+        getData();
       }
     } else if (destination.toColumnId === 3) {
       const permission = checkPermissions(
@@ -139,8 +175,12 @@ function KanbanBoard({ taskData, appAcronym, sessionData, appData, getData }) {
         return;
       } else {
         setBoard(updatedBoard);
-        handleQuery2({taskID:_card.id, taskOwner: sessionData.username, taskState:"DOING"})
-        getData()
+        handleQuery2({
+          taskID: _card.id,
+          taskOwner: sessionData.username,
+          taskState: "DOING",
+        });
+        getData();
       }
     } else if (destination.toColumnId === 4) {
       const permission = checkPermissions(
@@ -151,26 +191,32 @@ function KanbanBoard({ taskData, appAcronym, sessionData, appData, getData }) {
         alert("You do not have enough permission to do that");
         return;
       } else {
-       setBoard(updatedBoard);
-       handleQuery2({taskID:_card.id, taskOwner: sessionData.username, taskState:"DONE"})
-      getData()
+        setBoard(updatedBoard);
+        handleQuery2({
+          taskID: _card.id,
+          taskOwner: sessionData.username,
+          taskState: "DONE",
+        });
+        handleEmail({
+          userID: sessionData.user_id,
+          groupName: sessionData.group_name,
+        });
+        getData();
       }
     } else {
       return;
     }
-  }
-
+  };
 
   return (
     <>
-    <Board
+      <Board
         onCardDragEnd={handleCardMove}
         disableColumnDrag
         style={{ maxWidth: "100%" }}
       >
         {controlledBoard}
       </Board>
-      
     </>
   );
 }

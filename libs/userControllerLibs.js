@@ -55,6 +55,27 @@ function FindUserDataID(id) {
     );
   });
 }
+
+// //? =============================      fetch Email with username    =============================
+// function FindUserDataID(id) {
+//   return new Promise((resolve, reject) => {
+//     connection.query(
+//       "SELECT * FROM profiles WHERE user_id = ?;",
+//       [id],
+//       (err, result) => {
+//         if (err) {
+//           return reject(err);
+//         } else if (result[0] === undefined) {
+//           console.log("user not found");
+//           return resolve(false);
+//         } else {
+//           console.log("user found");
+//           return resolve(result);
+//         }
+//       }
+//     );
+//   });
+// }
 //* =============================        for login       =============================
 function FindUserData(username) {
   return new Promise((resolve, reject) => {
@@ -209,12 +230,12 @@ function CheckRole(role_groups, role_name) {
         }
         else if (result[0][Object.keys(result[0])[0]] === 0){
           // console.log(result[0][Object.keys(result[0])[0]])
-          console.log("user not in group")
+          // console.log("user not in group")
           return resolve(false)
         }
         else{
           // console.log(">>>>>", result[0][Object.keys(result[0])[0]])
-          console.log("user in group")
+          // console.log("user in group")
           return resolve(true);
         }
       }
@@ -241,7 +262,7 @@ function CheckRole(role_groups, role_name) {
 
 //! =============================         fetch role from roles table with single username     ========================
 function RoleGroupFetch(username) {
-  console.log("username", username)
+  // console.log("username", username)
   return new Promise((resolve, reject) => {
     connection.query(
       "SELECT role_groups FROM permissions WHERE username = ? && permission_status ='1' ;",
@@ -488,6 +509,7 @@ function UpdateGroupTeamsAssignment(username, groupName) {
     );
   });
 }
+
 
 
 module.exports = {

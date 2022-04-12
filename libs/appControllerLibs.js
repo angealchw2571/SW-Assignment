@@ -206,6 +206,25 @@ function CreateNewPlan(
   });
 }
 
+function CreateNewGroup(group_name) {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = `INSERT INTO groups_table (group_name) 
+      VALUES (?);`
+    connection.query(
+      sqlQuery,
+      [group_name],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        } else {
+          // console.log("create group success");
+          return resolve(result);
+        }
+      }
+    );
+  });
+}
+
 function CreateNewTask(
   Task_App_Acronym,
   Task_plan,
@@ -499,5 +518,6 @@ module.exports = {
   AddTaskNotes,
   FetchRnumber,
   UpdateRnumber,
-  UpdateTask
+  UpdateTask,
+  CreateNewGroup,
 };

@@ -1,57 +1,115 @@
 import { React, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
-import DatePicker from "@mui/lab/DatePicker";
-import axios from "axios";
 import FormLabel from "@mui/material/FormLabel";
 import FormGroup from "@mui/material/FormGroup";
 import FormControl from "@mui/material/FormControl";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
+import axios from "axios";
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import DatePicker from "@mui/lab/DatePicker";
+import { styled } from "@mui/material/styles";
 
-function CreateApp() {
-  let navigate = useNavigate();
+
+
+function CreateAppTest() {
   const theme = createTheme();
+  console.log("page is refreshing");
+  const [networkStatus, setNetworkStatus] = useState("pending");
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
-  const [networkStatus, setNetworkStatus] = useState("pending");
   const [roleData, setRoleData] = useState();
   const [groupData, setGroupData] = useState();
+//   const groupData = [
+//     {
+//       group_id: 1,
+//       group_name: "Alpha",
+//     },
+//     {
+//       group_id: 2,
+//       group_name: "chicken",
+//     },
+//     {
+//       group_id: 3,
+//       group_name: "Duck",
+//     },
+//     {
+//       group_id: 4,
+//       group_name: "Potato",
+//     },
+//     {
+//       group_id: 5,
+//       group_name: "Coconut",
+//     },
+//   ];
+//   const roleData = [
+//       {
+//         role_id:1,
+//         role_name:"Admin",
+//         role_description:"hi",
+//     },
+//       {
+//         role_id:2,
+//         role_name:"Superuser",
+//         role_description:"hi",
+//     },
+//       {
+//         role_id:3,
+//         role_name:"User",
+//         role_description:"hi",
+//     },
+//       {
+//         role_id:4,
+//         role_name:"Project Lead",
+//         role_description:"hi",
+//     },
+//       {
+//         role_id:5,
+//         role_name:"Project Manager",
+//         role_description:"hi",
+//     },
+//       {
+//         role_id:6,
+//         role_name:"Developer",
+//         role_description:"hi",
+//     },
+//   ]
+const CustomTextField = styled(TextField)({
+    "& label.Mui-focused": {
+      color: "#ff8aae",
+      border: "5px",
+      borderRadius: `4px 0 0 4px`,
+    },
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "green",
+    },
+    "& .MuiOutlinedInput-root": {
+      "&:hover fieldset": {
+        borderColor: "pink",
+        borderWidth: "2px",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#ff8aae",
+      },
+    },
+  });
   const [checkBoxForm, setCheckBoxForm] = useState({
     form1: {},
     form2: {},
     form3: {},
     groupForm: {},
   });
-
-  // const CustomTextField = styled(TextField)({
-  //   "& label.Mui-focused": {
-  //     color: "#ff8aae",
-  //     border: "5px",
-  //     borderRadius: `4px 0 0 4px`,
-  //   },
-  //   "& .MuiInput-underline:after": {
-  //     borderBottomColor: "green",
-  //   },
-  //   "& .MuiOutlinedInput-root": {
-  //     "&:hover fieldset": {
-  //       borderColor: "pink",
-  //       borderWidth: "2px",
-  //     },
-  //     "&.Mui-focused fieldset": {
-  //       borderColor: "#ff8aae",
-  //     },
-  //   },
-  // });
 
   useEffect(() => {
     const getData = async () => {
@@ -68,22 +126,15 @@ function CreateApp() {
     };
     getData();
   }, []);
-
-  const handleQuery = async (data) => {
-    console.log("query working");
-    await axios
-      .post(`/api/app/createapp`, data)
-      .then((res) => {
-        if (res) {
-          setNetworkStatus("resolved");
-          alert("Created App Successfully!");
-          navigate("/app/home")
-        }
-      })
-      .catch(function (error) {
-        alert(error);
-        console.log(error);
-      });
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    console.log({
+      email: data.get("email"),
+      password: data.get("password"),
+    });
+    console.log("start", startDate, "end", endDate)
+    console.log("checkboxForm", checkBoxForm)
   };
 
   const handlePermissionChange1 = (event) => {
@@ -135,57 +186,76 @@ function CreateApp() {
     setCheckBoxForm(newData);
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const App_Acronym = event.target.App_Acronym.value;
-    const App_Description = event.target.App_Description.value;
-    const App_Rnumber = event.target.App_Rnumber.value || 1;
-    const finalData = {
-      App_Acronym: App_Acronym,
-      App_Description: App_Description,
-      App_Rnumber: App_Rnumber,
-      startDate: startDate,
-      endDate: endDate,
-      permissionForm: checkBoxForm,
-    };
-    console.log("finalData", finalData);
-    handleQuery(finalData);
-  };
-
   return (
-    <>
-      {networkStatus === "resolved" ? (
-        <>
-          <h1>CreateApp</h1>
-          <ThemeProvider theme={theme}>
-            <Container component="main" maxWidth="sm">
-              <CssBaseline />
-              <Box
-                sx={{
-                  marginTop: 8,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-                onSubmit={handleSubmit}
-              >
-                <Typography component="h1" variant="h5">
-                  Create New App
-                </Typography>
-                <Box component="form" sx={{ mt: 3 }}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={12}>
+      <>
+      {networkStatus === "resolved" ? (<>
+      <div>CreateAppTest</div>
+      <ThemeProvider theme={theme}>
+        <Container component="main" maxWidth="xs">
+          <CssBaseline />
+          <Box
+            sx={{
+              marginTop: 8,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              Sign up
+            </Typography>
+            <Box
+              component="form"
+              noValidate
+              onSubmit={handleSubmit}
+              sx={{ mt: 3 }}
+            >
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    autoComplete="given-name"
+                    name="firstName"
+                    required
+                    fullWidth
+                    id="firstName"
+                    label="First Name"
+                    autoFocus
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="lastName"
+                    label="Last Name"
+                    name="lastName"
+                    autoComplete="family-name"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="email"
+                    label="Email Address"
+                    name="email"
+                    autoComplete="email"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={12}>
                       <TextField
                         name="App_Acronym"
                         required
                         fullWidth
-                        color="secondary"
                         label="App Acronym"
                         id="custom-css-outlined-input"
                       />
                     </Grid>
-                    <Grid item xs={12} sm={12}>
-                      <TextField
+                <Grid item xs={12} sm={12}>
+                      <CustomTextField
                         name="App_Description"
                         required
                         fullWidth
@@ -194,8 +264,7 @@ function CreateApp() {
                         label="App Description"
                       />
                     </Grid>
-
-                    <Grid item xs={6}>
+                <Grid item xs={6}>
                       <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <DatePicker
                           label="Start Date"
@@ -204,12 +273,12 @@ function CreateApp() {
                             setStartDate(newValue);
                           }}
                           renderInput={(params) => (
-                            <TextField {...params} />
+                            <CustomTextField {...params} />
                           )}
                         />
                       </LocalizationProvider>
                     </Grid>
-                    <Grid item xs={6}>
+                <Grid item xs={6}>
                       <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <DatePicker
                           label="End Date"
@@ -218,47 +287,45 @@ function CreateApp() {
                             setEndDate(newValue);
                           }}
                           renderInput={(params) => (
-                            <TextField {...params} />
+                            <CustomTextField {...params} />
                           )}
                         />
                       </LocalizationProvider>
                     </Grid>
-                    <Grid item sm={12}>
-                      <TextField
-                        name="App_Rnumber"
-                        required
-                        fullWidth
-                        color="secondary"
-                        type="number"
-                        id="App_Rnumber"
-                        label="App Release Number"
-                      />
-                    </Grid>
-                    <Grid>
-                      <Box item sm={12}>
-                        <FormLabel>Assign Group</FormLabel>
-                        <FormGroup
-                          sx={{ display: "flex", flexDirection: "row" }}
-                        >
-                          {groupData.map((e, i) => {
-                            return (
-                              <FormControlLabel
-                                key={i}
-                                control={
-                                  <Checkbox
-                                    sx={{ m: 2 }}
-                                    onChange={handlePermissionChange4}
-                                    name={e.group_name}
-                                  />
-                                }
-                                label={e.group_name}
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    name="password"
+                    label="Password"
+                    id="password"
+                    autoComplete="new-password"
+                  />
+                </Grid>
+                <Grid item sm={12}>
+                  <Box >
+                    <FormLabel>Assign Group</FormLabel>
+                    <FormGroup sx={{ display: "flex", flexDirection: "row" }}>
+                      {groupData.map((e, i) => {
+                        return (
+                          <FormControlLabel
+                            key={i}
+                            control={
+                              <Checkbox
+                                sx={{ m: 2 }}
+                                onChange={handlePermissionChange4}
+                                name={e.group_name}
                               />
-                            );
-                          })}
-                        </FormGroup>
-                      </Box>
-                    </Grid>
-                    <Grid sx={{ display: "flex" }}>
+                            }
+                            label={e.group_name}
+                          />
+                        );
+                      })}
+                    </FormGroup>
+                  </Box>
+                </Grid>
+                
+                <Grid sx={{ display: "flex" }}>
                       {/* to do */}
                       <Box item sm={2}>
                         <FormControl
@@ -344,49 +411,25 @@ function CreateApp() {
                         </FormControl>
                       </Box>
                     </Grid>
-                  </Grid>
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    sx={{
-                      mt: 3,
-                      mb: 2,
-                      bgcolor: "#ff8aae",
-                      color: "#f9f1f1",
-                      ":hover": {
-                        backgroundColor: "pink",
-                        color: "black",
-                      },
-                    }}
-                  >
-                    Create App
-                  </Button>
-                </Box>
-              </Box>
-            </Container>
-              <Box>
+
+
+              </Grid>
               <Button
-                sx={{
-                  bgcolor: "pink",
-                  marginLeft:5,
-                  margin:20,
-                  color: "black",
-                  ":hover": {
-                    backgroundColor: "#ff8aae",
-                    color: "#f9f1f1",
-                  },
-                }}
-                onClick={() => navigate(`/app/home`)}
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
               >
-                <Typography>Back</Typography>
+                Sign Up
               </Button>
             </Box>
-          </ThemeProvider>
-        </>
-      ) : null}
-    </>
+          </Box>
+        </Container>
+      </ThemeProvider>
+    </>) : null}
+      </>
+    
   );
 }
 
-export default CreateApp;
+export default CreateAppTest;
