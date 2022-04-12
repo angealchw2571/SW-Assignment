@@ -20,7 +20,6 @@ import Authentication from "./components/Authentication";
 import AppHome from "./components/AppManagement/views/AppHome";
 import IndividualApp from "./components/AppManagement/views/IndividualApp";
 import CreateApp from "./components/AppManagement/CreateApp";
-import CreateAppTest from "./components/AppManagement/views/CreateAppTest";
 import EditApp from "./components/AppManagement/views/EditApp";
 import IndividualTask from "./components/TaskManagement/IndividualTask";
 import NewTask from "./components/TaskManagement/NewTask";
@@ -77,14 +76,12 @@ function PrivateRoute({children}){
           <Route exact path="/newgroup" element={<NewGroup />} />
           <Route path="/auth" element={<Authentication />} />
           <Route path="/error" element={<Error />} />
-          {/* <Route path="/createtask" element={<CreateTask />} /> */}
           <Route exact path="/app/newtask/:appAcronym" element={<PrivateRoute><NewTask /></PrivateRoute>} />
           <Route exact path="/app/home" element={<PrivateRoute><AppHome /></PrivateRoute>} />
           <Route exact path="/appcreate" element={<PrivateRoute><CreateApp /></PrivateRoute>} />
           <Route exact path="/app/edit/:appAcronym" element={<PrivateRoute><EditApp /></PrivateRoute>} />
           <Route exact path="/app/:appAcronym" element={<PrivateRoute><IndividualApp /></PrivateRoute>} />
           <Route exact path="/apptask/:appAcronym/:taskID" element={<PrivateRoute><IndividualTask /></PrivateRoute>} />
-          <Route exact path="/testing" element={<CreateAppTest />} />
         </Routes>
       </div>
     </BrowserRouter>

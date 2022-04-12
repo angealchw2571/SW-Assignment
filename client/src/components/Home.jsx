@@ -5,6 +5,7 @@ import { userSessionAtom } from "./LoginPage";
 import axios from "axios";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import LoadingBar from "./LoadingBar"
 
 function Home() {
   const sessionData = useAtom(userSessionAtom)[0];
@@ -116,7 +117,7 @@ function Home() {
           ) : null} */}
           
         </>
-      ) : null}
+      ) : <LoadingBar />}
     </>
   );
 }

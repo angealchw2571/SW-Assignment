@@ -17,6 +17,7 @@ import FormGroup from "@mui/material/FormGroup";
 import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
+import LoadingBar from "../LoadingBar";
 
 function CreateApp() {
   let navigate = useNavigate();
@@ -77,7 +78,7 @@ function CreateApp() {
         if (res) {
           setNetworkStatus("resolved");
           alert("Created App Successfully!");
-          navigate("/app/home")
+          navigate("/app/home");
         }
       })
       .catch(function (error) {
@@ -149,7 +150,7 @@ function CreateApp() {
       permissionForm: checkBoxForm,
     };
     console.log("finalData", finalData);
-    handleQuery(finalData);
+    // handleQuery(finalData);
   };
 
   return (
@@ -203,9 +204,7 @@ function CreateApp() {
                           onChange={(newValue) => {
                             setStartDate(newValue);
                           }}
-                          renderInput={(params) => (
-                            <TextField {...params} />
-                          )}
+                          renderInput={(params) => <TextField {...params} />}
                         />
                       </LocalizationProvider>
                     </Grid>
@@ -217,9 +216,7 @@ function CreateApp() {
                           onChange={(newValue) => {
                             setEndDate(newValue);
                           }}
-                          renderInput={(params) => (
-                            <TextField {...params} />
-                          )}
+                          renderInput={(params) => <TextField {...params} />}
                         />
                       </LocalizationProvider>
                     </Grid>
@@ -365,12 +362,12 @@ function CreateApp() {
                 </Box>
               </Box>
             </Container>
-              <Box>
+            <Box>
               <Button
                 sx={{
                   bgcolor: "pink",
-                  marginLeft:5,
-                  margin:20,
+                  marginLeft: 5,
+                  margin: 20,
                   color: "black",
                   ":hover": {
                     backgroundColor: "#ff8aae",
@@ -384,7 +381,9 @@ function CreateApp() {
             </Box>
           </ThemeProvider>
         </>
-      ) : null}
+      ) : (
+        <LoadingBar />
+      )}
     </>
   );
 }

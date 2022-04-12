@@ -8,7 +8,7 @@ import Typography from "@mui/material/Typography";
 import { useAtom } from "jotai";
 import { userSessionAtom } from "../../LoginPage";
 import Grid from "@mui/material/Grid";
-import LinearProgress from "@mui/material/LinearProgress";
+import LoadingBar from "../../LoadingBar";
 
 const checkPermissions = require("../../checkPermissions");
 const moment = require("moment");
@@ -54,7 +54,12 @@ function IndividualApp() {
     <>
       {networkStatus === "resolved" ? (
         <div>
-          <Grid container alignItems="center" justifyContent="center" sx={{marginBottom:8}}>
+          <Grid
+            container
+            alignItems="center"
+            justifyContent="center"
+            sx={{ marginBottom: 8 }}
+          >
             <Grid item xs={8} spacing={3}>
               <h1>App {appAcronym}</h1>
               {permission ? (
@@ -147,8 +152,8 @@ function IndividualApp() {
             <Button
               sx={{
                 bgcolor: "pink",
-                marginLeft:5,
-                margin:10,
+                marginLeft: 5,
+                margin: 10,
                 color: "black",
                 ":hover": {
                   backgroundColor: "#ff8aae",
@@ -162,11 +167,7 @@ function IndividualApp() {
           </Box>
         </div>
       ) : (
-        <Grid container alignItems="center" justifyContent="center">
-          <Grid item xs={8}>
-            <LinearProgress color="secondary" sx={{ width: "100%", mt: 20 }} />
-          </Grid>
-        </Grid>
+        <LoadingBar />
       )}
     </>
   );

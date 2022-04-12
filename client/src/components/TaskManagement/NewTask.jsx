@@ -8,8 +8,7 @@ import { userSessionAtom } from "../LoginPage";
 import Button from "@mui/material/Button";
 import axios from "axios";
 import Typography from "@mui/material/Typography";
-import { styled } from '@mui/material/styles';
-
+import { styled } from "@mui/material/styles";
 
 function NewTask() {
   const { appAcronym } = useParams();
@@ -19,21 +18,21 @@ function NewTask() {
   let navigate = useNavigate();
 
   const CustomTextField = styled(TextField)({
-    '& label.Mui-focused': {
-      color: '#ff8aae',
+    "& label.Mui-focused": {
+      color: "#ff8aae",
       border: "5px",
       borderRadius: `4px 0 0 4px`,
     },
-    '& .MuiInput-underline:after': {
-      borderBottomColor: 'green',
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "green",
     },
-    '& .MuiOutlinedInput-root': {
-      '&:hover fieldset': {
-        borderColor: 'pink',
-        borderWidth: "2px"
+    "& .MuiOutlinedInput-root": {
+      "&:hover fieldset": {
+        borderColor: "pink",
+        borderWidth: "2px",
       },
-      '&.Mui-focused fieldset': {
-        borderColor: '#ff8aae',
+      "&.Mui-focused fieldset": {
+        borderColor: "#ff8aae",
       },
     },
   });
@@ -44,7 +43,6 @@ function NewTask() {
       .then((res) => {
         if (res) {
           setNetworkStatus("resolved");
-          // console.log("hello")
           navigate(`/app/${appAcronym}`);
         }
       })
@@ -137,21 +135,21 @@ function NewTask() {
           </Button>
         </Box>
       </Box>
-        <Box>
-              <Button
-                sx={{
-                  bgcolor: "pink",
-                  color: "black",
-                  ":hover": {
-                    backgroundColor: "#ff8aae",
-                    color: "#f9f1f1",
-                  },
-                }}
-                onClick={ ()=> navigate(`/app/${appAcronym}`)}
-              >
-                <Typography>Back</Typography>
-              </Button>
-            </Box>
+      <Box>
+        <Button
+          sx={{
+            bgcolor: "pink",
+            color: "black",
+            ":hover": {
+              backgroundColor: "#ff8aae",
+              color: "#f9f1f1",
+            },
+          }}
+          onClick={() => navigate(`/app/${appAcronym}`)}
+        >
+          <Typography>Back</Typography>
+        </Button>
+      </Box>
     </>
   );
 }

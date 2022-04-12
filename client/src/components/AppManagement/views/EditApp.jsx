@@ -15,8 +15,8 @@ import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
-import { styled } from '@mui/material/styles';
-
+import { styled } from "@mui/material/styles";
+import LoadingBar from "../../LoadingBar";
 
 const moment = require("moment");
 
@@ -39,21 +39,21 @@ function EditApp() {
   // console.log("appdata", appData);
 
   const CustomTextField = styled(TextField)({
-    '& label.Mui-focused': {
-      color: '#ff8aae',
+    "& label.Mui-focused": {
+      color: "#ff8aae",
       border: "5px",
       borderRadius: `4px 0 0 4px`,
     },
-    '& .MuiInput-underline:after': {
-      borderBottomColor: 'green',
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "green",
     },
-    '& .MuiOutlinedInput-root': {
-      '&:hover fieldset': {
-        borderColor: 'pink',
-        borderWidth: "2px"
+    "& .MuiOutlinedInput-root": {
+      "&:hover fieldset": {
+        borderColor: "pink",
+        borderWidth: "2px",
       },
-      '&.Mui-focused fieldset': {
-        borderColor: '#ff8aae',
+      "&.Mui-focused fieldset": {
+        borderColor: "#ff8aae",
       },
     },
   });
@@ -398,25 +398,27 @@ function EditApp() {
               </Button>
             </Box>
           </Container>
-            <Box>
-              <Button
-                sx={{
-                  bgcolor: "pink",
-                  marginLeft:5,
-                  margin:10,
-                  color: "black",
-                  ":hover": {
-                    backgroundColor: "#ff8aae",
-                    color: "#f9f1f1",
-                  },
-                }}
-                onClick={() => navigate(`/app/${appAcronym}`)}
-              >
-                <Typography>Back</Typography>
-              </Button>
-            </Box>
+          <Box>
+            <Button
+              sx={{
+                bgcolor: "pink",
+                marginLeft: 5,
+                margin: 10,
+                color: "black",
+                ":hover": {
+                  backgroundColor: "#ff8aae",
+                  color: "#f9f1f1",
+                },
+              }}
+              onClick={() => navigate(`/app/${appAcronym}`)}
+            >
+              <Typography>Back</Typography>
+            </Button>
+          </Box>
         </>
-      ) : null}
+      ) : (
+        <LoadingBar />
+      )}
     </>
   );
 }

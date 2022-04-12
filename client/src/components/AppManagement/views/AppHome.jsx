@@ -11,6 +11,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { useNavigate } from "react-router-dom";
+import LoadingBar from "../../LoadingBar";
 
 function AppHome() {
   const [networkStatus, setnetworkStatus] = useState("pending");
@@ -121,22 +122,23 @@ function AppHome() {
                         </Typography>
                         <Typography sx={{ fontSize: 14 }}>
                           <div>
-                            Assigned Teams {e.group_team_assignment.map((e)=> {
-                              return <li key={e}>{e}</li>
+                            Assigned Teams{" "}
+                            {e.group_team_assignment.map((e) => {
+                              return <li key={e}>{e}</li>;
                             })}
                           </div>
                         </Typography>
                       </CardContent>
                       <CardActions>
                         <Button
-                        sx={{
-                          bgcolor: "pink",
-                          color: "black",
-                          ":hover": {
-                            backgroundColor: "#ff8aae",
-                            color: "#f9f1f1",
-                          },
-                        }}
+                          sx={{
+                            bgcolor: "pink",
+                            color: "black",
+                            ":hover": {
+                              backgroundColor: "#ff8aae",
+                              color: "#f9f1f1",
+                            },
+                          }}
                           size="small"
                           onClick={() => handleClick(e.App_Acronym)}
                         >
@@ -153,21 +155,23 @@ function AppHome() {
                 sx={{
                   bgcolor: "pink",
                   color: "black",
-                  marginLeft:2,
-                  margin:10,
+                  marginLeft: 2,
+                  margin: 10,
                   ":hover": {
                     backgroundColor: "#ff8aae",
                     color: "#f9f1f1",
                   },
                 }}
-                onClick={ ()=> navigate(`/home`)}
+                onClick={() => navigate(`/home`)}
               >
                 <Typography>Back</Typography>
               </Button>
             </Box>
           </main>
         </>
-      ) : null}
+      ) : (
+        <LoadingBar />
+      )}
     </>
   );
 }
