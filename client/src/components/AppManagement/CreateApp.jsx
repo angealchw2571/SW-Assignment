@@ -1,7 +1,7 @@
 import { React, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
+import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -71,7 +71,6 @@ function CreateApp() {
   }, []);
 
   const handleQuery = async (data) => {
-    console.log("query working");
     await axios
       .post(`/api/app/createapp`, data)
       .then((res) => {
@@ -150,7 +149,7 @@ function CreateApp() {
       permissionForm: checkBoxForm,
     };
     console.log("finalData", finalData);
-    // handleQuery(finalData);
+    handleQuery(finalData);
   };
 
   return (

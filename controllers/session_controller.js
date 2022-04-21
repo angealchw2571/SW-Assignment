@@ -23,7 +23,7 @@ router.post("/login", async function (req, res) {
         res.status(200).json(package);
       } else res.status(400).json({ message: "Password Incorrect" });
     } else if (result[0] === undefined) {
-      res.status(400).json({ message: "User not found" });
+      res.status(400).json({ message: "Username not found" });
     }
   } catch (err) {
     console.log("err", err);

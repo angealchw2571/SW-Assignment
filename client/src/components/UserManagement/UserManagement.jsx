@@ -82,19 +82,6 @@ function UserManagement() {
   return (
     <>
       <h1> User Management Admin Board</h1>
-      {sessionData.role_groups.includes("Admin") ? (
-        <span>
-          <Link to="/new">
-            <button>Create New User</button>
-          </Link>
-          <Link to="/newrole">
-            <button>Create new role</button>
-          </Link>
-          <Link to="/newgroup">
-            <button>Create new group</button>
-          </Link>
-        </span>
-      ) : null}
       <p />
       <button onClick={() => handleClick(ALL)}>Fetch all users</button>
       <button onClick={() => handleClick(ADMIN)}>Fetch Admins</button>

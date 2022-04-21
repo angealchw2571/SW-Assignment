@@ -26,6 +26,7 @@ let transport = nodemailer.createTransport({
 
 
 function SendDoneEmail(devEmail, leadEmail) {
+  console.log("dev", devEmail, "lead", leadEmail )
     const message = {
         from: `${devEmail}`,
         to: `${leadEmail}`,

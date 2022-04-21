@@ -114,7 +114,7 @@ function IndividualApp() {
                 })}
               </span>
               <p />
-              <Grid sx={{ display: "flex", gap: 10 }}>
+              <Grid sx={{ display: "flex", gap: 10, alignItems: "center" }}>
                 <span className="div1">
                   Permission(To Do):
                   {appData[0].App_permit_toDoList.map((e, i) => {

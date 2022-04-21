@@ -36,6 +36,20 @@ function FetchTask(AppAcronym) {
     });
   });
 }
+function FetchAllTask() {
+  return new Promise((resolve, reject) => {
+    connection.query("SELECT * from task ;", (err, result) => {
+      if (err) {
+        return reject(err);
+      } else {
+        result.map((e)=> {
+          e.Task_notes = JSON.parse(e.Task_notes);
+        })
+        return resolve(result);
+      }
+    });
+  });
+}
 
 function FetchApp(AppAcronym) {
   return new Promise((resolve, reject) => {
@@ -206,18 +220,17 @@ function CreateNewPlan(
   });
 }
 
-function CreateNewGroup(group_name) {
+function CreateNewGroup(group_name, group_color) {
   return new Promise((resolve, reject) => {
-    const sqlQuery = `INSERT INTO groups_table (group_name) 
-      VALUES (?);`
+    const sqlQuery = `INSERT INTO groups_table (group_name, group_color) 
+      VALUES (?, ?);`
     connection.query(
       sqlQuery,
-      [group_name],
+      [group_name, group_color],
       (err, result) => {
         if (err) {
           return reject(err);
         } else {
-          // console.log("create group success");
           return resolve(result);
         }
       }
@@ -503,6 +516,7 @@ module.exports = {
   FetchAllPlan,
   FetchAllApp,
   FetchTask,
+  FetchAllTask,
   CreateNewApp,
   CreateNewPlan,
   CreateNewTask,

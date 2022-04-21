@@ -13,7 +13,7 @@ function PasswordValidation(password) {
       lower = /[a-z]/,
       number = /[0-9]/,
       special = /[^A-Za-z0-9]/,
-      minLength = 8;
+      minLength = 2;
 
     if (password.length < minLength) {
       return rank.TOO_SHORT; // End early

@@ -41,41 +41,36 @@ router.put("/edit/pass/:id", async function (req, res) {
   }
 });
 
-//* ====================   @      UPDATE PROFILE        ==============================
-
-router.put("/edit/profile/:id", async function (req, res) {
-  const { id } = req.params;
-  const { name, age } = req.body;
-  const newEmail = req.body.email;
-
-  try {
-    await USERC.UpdateProfileValues(id, name, age, newEmail);
-    res.status(200).json({ message: "Update Profile Success" });
-  } catch (err) {
-    console.log("error from catching block", err);
-    res.status(400).json(err);
-  }
-});
-
 //* ====================   @      EDIT Status        ==============================
-router.put("/edit/status/:id", async function (req, res) {
+router.put("/edit/:id", async function (req, res) {
   const { id } = req.params;
-  const newStatus = req.body.status;
-  const STATUS = "user_status";
+  const {name, email, role_groups, groupName, status} = req.body;
+
   try {
-    const data = await USERC.UpdateUserValues(id, newStatus, STATUS);
-    res.status(200).json({ message: "Status Change Successful" });
+    const updateStatus = await USERC.UpdateUserValues(id, status, "user_status");
+    if (updateStatus) {
+      const updateProfile = await USERC.UpdateProfileValues(id, name, email);
+      if (updateProfile){
+        const username = await USERC.FetchUsername(id);
+        const updatePermission = await USERC.UpdatePermissions(role_groups, username);
+        if (updatePermission){
+          const updateGroup = await USERC.UpdateGroupTeamsAssignment(username, groupName);
+          if (updateGroup){
+            res.status(200).json({ message: "User update successful" });
+          }
+        }
+      }
+    }
   } catch (err) {
     console.log("error from catching block", err);
     res.status(400).json(err);
   }
 });
-
 //* ====================    @     Reset Password        ==============================
 
 router.post("/edit/reset/:id", async function (req, res) {
   const { id } = req.params;
-  const hashPassword = USERC.PasswordHash(req.body.password);
+  const hashPassword = USERC.PasswordHash("123456Aa$!");
   const RESET_ACTION = "password";
 
   try {
@@ -87,25 +82,7 @@ router.post("/edit/reset/:id", async function (req, res) {
   }
 });
 
-//* ====================    @     Update Permissions       ==============================
-
-router.post("/permissions/:id", async function (req, res) {
-  const { id } = req.params;
-  const { role_groups, groupName } = req.body;
-
-  console.log("groupName", groupName);
-  try {
-    const username = await USERC.FetchUsername(id);
-    const result = await USERC.UpdatePermissions(role_groups, username);
-    const result2 = await USERC.UpdateGroupTeamsAssignment(username, groupName);
-    if (result2) {
-      res.status(200).json({ message: "User permission change successful" });
-    }
-  } catch (err) {
-    console.log("error from catching block", err);
-    res.status(400).json(err);
-  }
-});
+// 
 
 //* ======================  @       GET ALL ROLE DATA       ==============================
 router.get("/checkroles", async function (req, res) {
@@ -179,13 +156,14 @@ router.get("/:id", async function (req, res) {
     const username = await USERC.FetchUsername(id);
     const profileData = await USERC.FetchProfileData(id);
     const groupData = await USERC.FetchGroupDetails(username);
+    const groupDetails = await USERC.FetchGroupTableDetails(groupData[0].group_name)
     const roleData = await USERC.RoleGroupFetch(username);
     const userData = await USERC.FindUserDataID(id);
     const updatedData = {
       ...profileData,
       ...userData[0],
       ...roleData[0],
-      ...groupData[0],
+      ...groupDetails[0],
     };
     delete updatedData.password;
     res.status(200).json(updatedData);
@@ -211,14 +189,10 @@ router.get("/checkgroup/:roleName", async function (req, res) {
   let package = [];
   try {
     const allUsers = await USERC.FindAllUser();
-    console.log("allUsers", allUsers);
     for (let i = 0; i < allUsers.length; i++) {
       const username = await USERC.FetchUsername(allUsers[i].user_id);
-      console.log("step1");
       const roleGroup = await USERC.RoleGroupFetch(username);
-      console.log("step2", roleGroup);
       const result = await USERC.CheckRole(roleGroup[0].role_groups, roleName);
-      console.log("step3", result);
       if (result === true) {
         package.push(allUsers[i]);
       }
@@ -308,5 +282,57 @@ router.put("/edit/:ACTION/:ID", function (req, res) {
     });
   }
 });
+
+
+//* ====================    @     Update Permissions       ==============================
+
+// router.post("/permissions/:id", async function (req, res) {
+//   const { id } = req.params;
+//   const { role_groups, groupName } = req.body;
+
+//   try {
+//     const username = await USERC.FetchUsername(id);
+//     const result = await USERC.UpdatePermissions(role_groups, username);
+//     const result2 = await USERC.UpdateGroupTeamsAssignment(username, groupName);
+//     if (result2) {
+//       res.status(200).json({ message: "User permission change successful" });
+//     }
+//   } catch (err) {
+//     console.log("error from catching block", err);
+//     res.status(400).json(err);
+//   }
+// });
+
+//* ====================   @      UPDATE PROFILE        ==============================
+
+// router.put("/edit/profile/:id", async function (req, res) {
+//   const { id } = req.params;
+//   const { name, age } = req.body;
+//   const newEmail = req.body.email;
+
+//   try {
+//     await USERC.UpdateProfileValues(id, name, age, newEmail);
+//     res.status(200).json({ message: "Update Profile Success" });
+//   } catch (err) {
+//     console.log("error from catching block", err);
+//     res.status(400).json(err);
+//   }
+// });
+
+// //* ====================   @      EDIT Status        ==============================
+// router.put("/edit/status/:id", async function (req, res) {
+//   const { id } = req.params;
+//   const newStatus = req.body.status;
+//   const STATUS = "user_status";
+//   try {
+//     const data = await USERC.UpdateUserValues(id, newStatus, STATUS);
+//     res.status(200).json({ message: "Status Change Successful" });
+//   } catch (err) {
+//     console.log("error from catching block", err);
+//     res.status(400).json(err);
+//   }
+// });
+
+
 
 module.exports = router;

@@ -239,7 +239,7 @@ function EditApp() {
                     id="App_Rnumber"
                     label="Release Number"
                     autoFocus
-                    defaultValue={appData.App_Rnumber}
+                    value={appData.App_Rnumber}
                   />
                 </Grid>
                 <Grid item xs={4}>

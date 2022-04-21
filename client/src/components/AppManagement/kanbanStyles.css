@@ -1,0 +1,44 @@
+.react-kanban-column {
+  background-color: #e4d5eb;
+  max-height: 95vh;
+  width: 21% !important;
+
+  /* max-width: 90vw !important; */
+}
+
+.react-kanban-column > div:nth-child(2) > div > div {
+  display: block !important;
+}
+
+.react-kanban-column-header {
+  /* width: 24% !important; */
+}
+
+.react-kanban-board {
+  overflow-y: hidden !important;
+  height: 58vh;
+  /* width: 1; */
+  display: block !important;
+  overflow-x: hidden;
+  /* overflow-y: hidden; */
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  /* display: inline-flex; */
+}
+
+.react-kanban-card {
+  background-color: #e1d6ee;
+  border-radius: 6px;
+  /* min-height: 85px; */
+  max-width: 300px;
+}
+
+.KanbanCardTitle {
+  background-color: "green";
+  color: "green";
+}
+
+.react-kanban-card__description {
+  color: "red";
+}
