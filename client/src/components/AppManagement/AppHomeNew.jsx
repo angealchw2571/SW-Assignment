@@ -4,7 +4,6 @@ import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
-import AppSwiper from "./AppSwiper";
 import axios from "axios";
 import Loadingbar from "../LoadingBar";
 import KanbanBoardNew from "./KanbanBoardNew";
@@ -18,24 +17,27 @@ import Divider from "@mui/material/Divider";
 import List from "@mui/material/List";
 import ListSubheader from "@mui/material/ListSubheader";
 import ListItemButton from "@mui/material/ListItemButton";
-import PersonIcon from "@mui/icons-material/Person";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import AssignmentReturnedIcon from "@mui/icons-material/AssignmentReturned";
 import { userSessionAtom } from "../LoginPage";
 import { useAtom } from "jotai";
-import { Button } from "@mui/material";
+import CreateNewApp from "./CreateNewApp";
+import { Link } from "react-router-dom";
+import CreateNewTask from "./CreateNewTask";
+import checkPermissions from "../checkPermissions";
 
 function AppHomeNew() {
   const [networkStatus, setNetworkStatus] = useState("pending");
   const [networkStatus2, setNetworkStatus2] = useState("pending");
   const [appData, setAppData] = useState();
   const [taskData, setTaskData] = useState();
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpenViewTask, setModalOpenViewTask] = useState(false);
   const [modalOpenForm, setModalOpenForm] = useState(false);
+  const [modalCreateApp, setModalCreateApp] = useState(false);
+  const [modalCreateTask, setModalCreateTask] = useState(false);
   const [modalTaskDataIndex, setModalTaskDataIndex] = useState();
   const sessionData = useAtom(userSessionAtom)[0];
-
   const drawerWidth = 240;
   const Drawer = styled(MuiDrawer, {
     shouldForwardProp: (prop) => prop !== "open",
@@ -77,15 +79,15 @@ function AppHomeNew() {
     borderRadius: 10,
   };
   const handleModelFunc = (task_id) => {
-    setModalOpen(!modalOpen);
+    setModalOpenViewTask(!modalOpenViewTask);
     taskData.forEach((e, i) => {
       if (e.Task_id === task_id) {
         setModalTaskDataIndex(i);
       }
     });
   };
-  const handleModalClose = () => {
-    setModalOpen(!modalOpen);
+  const handleModalCloseViewTask = () => {
+    setModalOpenViewTask(!modalOpenViewTask);
   };
   const handleCloseModalForm = () => setModalOpenForm(!modalOpenForm);
 
@@ -94,7 +96,6 @@ function AppHomeNew() {
       try {
         const res = await axios.get(`/api/app/appgroups`);
         const res2 = await axios.get(`/api/app/apptasks`);
-
         setNetworkStatus("loading");
         setAppData(res.data);
         setTaskData(res2.data);
@@ -120,7 +121,20 @@ function AppHomeNew() {
         return url;
       }
     };
+    setNetworkStatus("pending");
     setNetworkStatus2("pending");
+
+    await axios
+      .get(`/api/app/appgroups`)
+      .then((res) => {
+        if (res) {
+          setAppData(res.data);
+        }
+      })
+      .catch(function (error) {
+        alert(error);
+        console.log(error);
+      });
     await axios
       .get(url(app_acronym))
       .then((res) => {
@@ -135,9 +149,19 @@ function AppHomeNew() {
         console.log(error);
       });
   };
-  const onClick = () => {
-    console.log("hello");
-  };
+
+
+  const buttonPermission = () => {
+      let value= false
+      appData.forEach((e,i) => {
+          if (checkPermissions(e.App_permit_createTask, sessionData.role_groups)){
+            //   return true
+            value = true
+          }
+      })
+       return value
+  }
+
   return (
     <>
       {networkStatus === "resolved" ? (
@@ -153,23 +177,45 @@ function AppHomeNew() {
                   open
                   sx={{ display: `${appData.length === 0 ? "none" : "block"}` }}
                 >
-                  <Toolbar
-                    onClick={onClick}
-                    sx={{
-                      display: "flex",
-                      alignItems: "left",
-                      justifyContent: "flex-left",
-                      px: [2],
-                      ":hover": {
-                        backgroundColor: "#C2ADDD",
-                        pointer: "cursor",
-                      },
-                    }}
-                  >
-                    Create new app
+                  <Toolbar>
+                    <div
+                      onClick={() => setModalCreateApp(!modalCreateApp)}
+                      style={{
+                        padding: 10,
+                        backgroundColor: "#e4d4ff",
+                        textDecoration: "none",
+                        borderRadius: 10,
+                        marginLeft: 0,
+                        display: `${
+                          checkPermissions(
+                            ["Admin", "Project Manager"],
+                            sessionData.role_groups
+                          )
+                            ? "block"
+                            : "none"
+                        }`,
+                      }}
+                    >
+                      <Typography>Create App</Typography>
+                    </div>
+                    <div
+                      onClick={() => setModalCreateTask(!modalCreateTask)}
+                      style={{
+                        padding: 10,
+                        backgroundColor: "#e4d4ff",
+                        borderRadius: 10,
+                        marginLeft: 5,
+                        display: `${
+                            buttonPermission()
+                              ? "block"
+                              : "none"
+                          }`,
+                      }}
+                    >
+                      <Typography>Create Task</Typography>
+                    </div>
                   </Toolbar>
                   <Divider />
-
                   <List
                     component="nav"
                     onClick={() => {
@@ -188,7 +234,6 @@ function AppHomeNew() {
                         sx={{
                           backgroundColor: "#E1D6EE",
                           fontSize: 19,
-                          //   display:"none",
                           ":hover": {
                             backgroundColor: "#e1b8f2",
                             cursor: "pointer",
@@ -199,22 +244,26 @@ function AppHomeNew() {
                       </ListSubheader>
                     }
                   >
-                    {/* <ListItemButton>
-                      <ListItemIcon></ListItemIcon>
-                      <ListItemText primary="All Apps" />
-                    </ListItemButton> */}
                     {appData.map((e, index) => (
-                      <ListItemButton
-                        key={index}
-                        onClick={() => {
-                          handleQuery(e.App_Acronym);
-                        }}
-                      >
-                        <ListItemIcon sx={{ color: `${e.App_Color}` }}>
-                          <AssignmentReturnedIcon />
-                        </ListItemIcon>
-                        <ListItemText primary={e.App_Acronym} />
-                      </ListItemButton>
+                      <div key={index} style={{ display: "flex" }}>
+                        <ListItemButton
+                          sx={{ py: 1.5 }}
+                          onClick={() => {
+                            handleQuery(e.App_Acronym);
+                          }}
+                        >
+                          <ListItemIcon sx={{ color: `${e.App_Color}` }}>
+                            <AssignmentReturnedIcon />
+                          </ListItemIcon>
+                          <ListItemText primary={e.App_Acronym} />
+                        </ListItemButton>
+                        <Link
+                          to={`/app/edit/${e.App_Acronym}`}
+                          style={{ textDecoration: "none" }}
+                        >
+                          <ListItemButton>⚙️</ListItemButton>
+                        </Link>
+                      </div>
                     ))}
                   </List>
                   {/* <Divider sx={{ my: 1 }} /> */}
@@ -248,12 +297,7 @@ function AppHomeNew() {
               </Grid>
             </Grid>
           </Paper>
-          <Modal
-            open={modalOpen}
-            onClose={handleModalClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
+          <Modal open={modalOpenViewTask} onClose={handleModalCloseViewTask}>
             <Box
               sx={{
                 position: "absolute",
@@ -275,16 +319,40 @@ function AppHomeNew() {
               />
             </Box>
           </Modal>
-          <Modal
-            open={modalOpenForm}
-            onClose={handleCloseModalForm}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
+          <Modal open={modalOpenForm} onClose={handleCloseModalForm}>
             <Box sx={style}>
               <TaskNoteForm
                 taskData={taskData[modalTaskDataIndex]}
                 setModalOpen={handleCloseModalForm}
+                handleModalCloseViewTask={handleModalCloseViewTask}
+                handleRefresh={handleQuery}
+              />
+            </Box>
+          </Modal>
+          <Modal
+            open={modalCreateApp}
+            onClose={() => setModalCreateApp(!modalCreateApp)}
+          >
+            <Box
+              sx={{ ...style, width: 900, height: "80vh", overflowY: "scroll" }}
+            >
+              <CreateNewApp
+                handleRefresh={handleQuery}
+                setModalCreateApp={setModalCreateApp}
+                modalCreateApp={modalCreateApp}
+              />
+            </Box>
+          </Modal>
+          <Modal
+            open={modalCreateTask}
+            onClose={() => setModalCreateTask(!modalCreateTask)}
+          >
+            <Box sx={{ ...style, height: "80vh" }}>
+              <CreateNewTask
+                appData={appData}
+                handleRefresh={handleQuery}
+                setModalCreateTask={setModalCreateTask}
+                modalCreateTask={modalCreateTask}
               />
             </Box>
           </Modal>

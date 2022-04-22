@@ -33,6 +33,7 @@ import CreateNewGroup from "./components/UserManagement/CreateNewGroup";
 import AdminBoard from "./components/UserManagement/AdminBoard";
 import AppHomeNew from "./components/AppManagement/AppHomeNew";
 import AppSwiper from "./components/AppManagement/AppSwiper"
+import EditAppNew from "./components/AppManagement/EditAppNew"
 
 
 function App() {
@@ -101,12 +102,12 @@ function PrivateRoute({children}){
           <Route exact path="/newgroup" element={<CreateNewGroup />} />
           <Route path="/auth" element={<Authentication />} />
           <Route path="/error" element={<Error />} />
-          <Route exact path="/test" element={<AppHomeNew />} />
+          <Route exact path="/test" element={<EditAppNew />} />
           <Route exact path="/test2" element={<AppSwiper />} />
           <Route exact path="/app/newtask/:appAcronym" element={<PrivateRoute><NewTask /></PrivateRoute>} />
           <Route exact path="/app/home" element={<PrivateRoute><AppHomeNew /></PrivateRoute>} />
           <Route exact path="/appcreate" element={<PrivateRoute><CreateApp /></PrivateRoute>} />
-          <Route exact path="/app/edit/:appAcronym" element={<PrivateRoute><EditApp /></PrivateRoute>} />
+          <Route exact path="/app/edit/:appAcronym" element={<PrivateRoute><EditAppNew /></PrivateRoute>} />
           <Route exact path="/app/:appAcronym" element={<PrivateRoute><IndividualApp /></PrivateRoute>} />
           <Route exact path="/apptask/:appAcronym/:taskID" element={<PrivateRoute><IndividualTask /></PrivateRoute>} />
         </Routes>

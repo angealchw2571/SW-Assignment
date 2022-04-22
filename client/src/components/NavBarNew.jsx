@@ -22,19 +22,16 @@ const theme = createTheme({
       main: "#E1D6EE",
     },
     secondary: {
-      // This is green.A700 as hex.
       main: "#11cb5f",
     },
   },
 });
 
 function Navbar() {
-  //   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [sessionData, setSessionData] = useAtom(userSessionAtom);
   const [anchorEl, setAnchorEl] = React.useState(null);
 
-  // console.log("sessionData", sessionData);
 
   const handleLogout = async () => {
     await axios
@@ -74,7 +71,7 @@ function Navbar() {
                   justifyContent: "center",
                 }}
               >
-                <Link to="/login" style={{ textDecoration: "none" }}>
+                <Link to="/app/home" style={{ textDecoration: "none" }}>
                   <img
                     src={Logo}
                     alt=""
@@ -88,13 +85,23 @@ function Navbar() {
               </Box>
 
               {sessionData.user_id === undefined ? null : (
-                <Box sx={{ flexGrow: 0, position: "absolute", right: 0, display:"flex" }}>
-                    <Typography sx={{position:"relative", marginRight: 2, marginTop:1}}>Welcome, {sessionData.username}</Typography>
+                <Box
+                  sx={{
+                    flexGrow: 0,
+                    position: "absolute",
+                    right: 0,
+                    display: "flex",
+                  }}
+                >
+                  <Typography
+                    sx={{ position: "relative", marginRight: 2, marginTop: 1 }}
+                  >
+                    Welcome, {sessionData.username}
+                  </Typography>
                   <Tooltip title="Open settings">
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                       <Avatar
                         alt={sessionData.username}
-                        // src="/static/images/avatar/2.jpg"
                       />
                     </IconButton>
                   </Tooltip>
@@ -102,7 +109,12 @@ function Navbar() {
                     sx={{ mt: "45px" }}
                     id="menu-appbar"
                     anchorEl={anchorElUser}
-                    MenuListProps={{ onMouseLeave: ()=> {handleCloseUserMenu(); handleClose();},  }}
+                    MenuListProps={{
+                      onMouseLeave: () => {
+                        handleCloseUserMenu();
+                        handleClose();
+                      },
+                    }}
                     anchorOrigin={{
                       vertical: "top",
                       horizontal: "right",
@@ -123,8 +135,18 @@ function Navbar() {
                         <Typography textAlign="center">Profile</Typography>
                       </Link>
                     </MenuItem>
+                    <MenuItem onClick={handleCloseUserMenu}>
+                      <Link
+                        to={`/app/home`}
+                        style={{ textDecoration: "none", color: "black" }}
+                      >
+                        <Typography textAlign="center">Apps</Typography>
+                      </Link>
+                    </MenuItem>
                     {sessionData.role_groups.includes("Admin") ? (
-                      <MenuItem onClick={handleCloseUserMenu} onMouseLeave={handleClose}
+                      <MenuItem
+                        onClick={handleCloseUserMenu}
+                        onMouseLeave={handleClose}
                       >
                         <Typography
                           textAlign="center"
@@ -150,24 +172,43 @@ function Navbar() {
                             marginRight: 5,
                           }}
                         >
-
-                        <Link to="/users" style={{ textDecoration: "none", color: "black" }}> 
-                            <MenuItem onClick={handleClose}><Typography>View Users</Typography></MenuItem>
-                        </Link>
-                        <Link to="/new" style={{ textDecoration: "none", color: "black" }}> 
-                            <MenuItem onClick={handleClose}><Typography>Create New User</Typography></MenuItem>
-                        </Link>
-                        <Link to="/newrole" style={{ textDecoration: "none", color: "black" }}> 
-                            <MenuItem onClick={handleClose}><Typography>Create New Role</Typography></MenuItem>
-                        </Link>
-                        <Link to="/newgroup" style={{ textDecoration: "none", color: "black" }}> 
-                            <MenuItem onClick={handleClose}><Typography>Create New Group</Typography></MenuItem>
-                        </Link>
+                          <Link
+                            to="/users"
+                            style={{ textDecoration: "none", color: "black" }}
+                          >
+                            <MenuItem onClick={handleClose}>
+                              <Typography>View Users</Typography>
+                            </MenuItem>
+                          </Link>
+                          <Link
+                            to="/new"
+                            style={{ textDecoration: "none", color: "black" }}
+                          >
+                            <MenuItem onClick={handleClose}>
+                              <Typography>Create New User</Typography>
+                            </MenuItem>
+                          </Link>
+                          <Link
+                            to="/newrole"
+                            style={{ textDecoration: "none", color: "black" }}
+                          >
+                            <MenuItem onClick={handleClose}>
+                              <Typography>Create New Role</Typography>
+                            </MenuItem>
+                          </Link>
+                          <Link
+                            to="/newgroup"
+                            style={{ textDecoration: "none", color: "black" }}
+                          >
+                            <MenuItem onClick={handleClose}>
+                              <Typography>Create New Group</Typography>
+                            </MenuItem>
+                          </Link>
                         </Menu>
                       </MenuItem>
                     ) : null}
-                    <MenuItem 
-                    onMouseOver={handleClose}
+                    <MenuItem
+                      onMouseOver={handleClose}
                       onClick={() => {
                         handleCloseUserMenu();
                         handleLogout();

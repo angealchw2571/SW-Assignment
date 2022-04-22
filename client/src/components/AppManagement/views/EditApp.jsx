@@ -79,7 +79,6 @@ function EditApp() {
   }, [appAcronym]);
 
   const handleQuery = async (data) => {
-    console.log("update query working");
     await axios
       .post(`/api/app/updateapp`, data)
       .then((res) => {

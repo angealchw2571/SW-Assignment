@@ -82,10 +82,8 @@ router.post("/tasknote/:task_id", async function (req, res) {
   try {
     const data = await TASKC.FetchTaskNotes(task_id);
     const newData = [...data.Task_notes, newNote];
-    console.log("before", data.Task_notes);
-    console.log("after", newData);
     const finalResult = await TASKC.AddTaskNotes(newData, task_id);
-    res.status(200).json(finalResult);
+    res.status(200).json({ message: "Add New Task Note Successful" });
   } catch (err) {
     res.status(400).json(err);
   }
@@ -109,41 +107,16 @@ router.post("/kanban", async function (req, res) {
 
 //* ======================    @     Create new application      ==============================
 router.post("/createapp", async function (req, res) {
-  const {
-    App_Acronym,
-    App_Description,
-    startDate,
-    endDate,
-    App_Rnumber,
-    permissionForm,
-  } = req.body;
-
-  const app_permit_toDoList = [];
-  const app_permit_doing = [];
-  const app_permit_done = [];
-  const group_team_assignment = [];
-
-  for (const [key, value] of Object.entries(permissionForm.form1)) {
-    if (value) {
-      app_permit_toDoList.push(`${key}`);
-    }
-  }
-  for (const [key, value] of Object.entries(permissionForm.form2)) {
-    if (value) {
-      app_permit_doing.push(`${key}`);
-    }
-  }
-  for (const [key, value] of Object.entries(permissionForm.form3)) {
-    if (value) {
-      app_permit_done.push(`${key}`);
-    }
-  }
-
-  for (const [key, value] of Object.entries(permissionForm.groupForm)) {
-    if (value) {
-      group_team_assignment.push(`${key}`);
-    }
-  }
+  const App_Acronym = req.body.appAcronym;
+  const App_Rnumber = req.body.appReleaseNumber;
+  const App_Description = req.body.appDescription;
+  const startDate = req.body.startDate;
+  const endDate = req.body.endDate;
+  const app_permit_toDoList = req.body.permissionForm.toDo;
+  const app_permit_doing = req.body.permissionForm.doing;
+  const app_permit_done = req.body.permissionForm.done;
+  const app_permit_createTask = req.body.permissionForm.taskCreate;
+  const group_team_assignment = req.body.groupRoleArr;
 
   try {
     const data = await TASKC.CreateNewApp(
@@ -154,12 +127,12 @@ router.post("/createapp", async function (req, res) {
       app_permit_toDoList,
       app_permit_doing,
       app_permit_done,
+      app_permit_createTask,
       App_Rnumber
     );
     if (data) {
       TASKC.AddAppTeamAssignment(App_Acronym, group_team_assignment);
-
-      res.status(200).json({ message: "success" });
+      res.status(200).json({ message: "successfully created new app" });
     }
   } catch (err) {
     console.log("err", err);
@@ -167,42 +140,19 @@ router.post("/createapp", async function (req, res) {
   }
 });
 
-//* ======================    @@     Create new application      ==============================
+//* ======================    @@     update  application      ==============================
 router.post("/updateapp", async function (req, res) {
-  const {
-    App_Acronym,
-    App_Description,
-    startDate,
-    endDate,
-    App_Rnumber,
-    permissionForm,
-  } = req.body;
+  const App_Acronym = req.body.appAcronym;
+  const App_Rnumber = req.body.appReleaseNumber;
+  const App_Description = req.body.appDescription;
+  const startDate = req.body.startDate;
+  const endDate = req.body.endDate;
+  const app_permit_toDoList = req.body.permissionForm.toDo;
+  const app_permit_doing = req.body.permissionForm.doing;
+  const app_permit_done = req.body.permissionForm.done;
+  const app_permit_createTask = req.body.permissionForm.taskCreate;
+  const group_team_assignment = req.body.groupRoleArr;
 
-  const app_permit_toDoList = [];
-  const app_permit_doing = [];
-  const app_permit_done = [];
-  const group_team_assignment = [];
-
-  for (const [key, value] of Object.entries(permissionForm.form1)) {
-    if (value) {
-      app_permit_toDoList.push(`${key}`);
-    }
-  }
-  for (const [key, value] of Object.entries(permissionForm.form2)) {
-    if (value) {
-      app_permit_doing.push(`${key}`);
-    }
-  }
-  for (const [key, value] of Object.entries(permissionForm.form3)) {
-    if (value) {
-      app_permit_done.push(`${key}`);
-    }
-  }
-  for (const [key, value] of Object.entries(permissionForm.groupForm)) {
-    if (value) {
-      group_team_assignment.push(`${key}`);
-    }
-  }
   try {
     const data = await TASKC.UpdateApp(
       App_Acronym,
@@ -212,12 +162,12 @@ router.post("/updateapp", async function (req, res) {
       app_permit_toDoList,
       app_permit_doing,
       app_permit_done,
+      app_permit_createTask,
       App_Rnumber
     );
     if (data) {
-      console.log("groupTeam", group_team_assignment);
       TASKC.UpdateAppTeamAssignment(App_Acronym, group_team_assignment);
-      res.status(200).json({ message: "Update success" });
+      res.status(200).json({ message: "Update App Success" });
     }
   } catch (err) {
     console.log("err", err);
@@ -248,7 +198,7 @@ router.post("/createplan", async function (req, res) {
   }
 });
 
-//* =======================    @     Create new plan      ==============================
+//* =======================    @     Create new group      ==============================
 router.post("/creategroup", async function (req, res) {
   const { group_name, group_color } = req.body;
 
@@ -265,12 +215,20 @@ router.post("/creategroup", async function (req, res) {
 //* =======================    @     Create new task      ==============================
 router.post("/createtask", async function (req, res) {
   const data = req.body;
-
+  console.log("route", data);
+  if (data.taskNote.length === 0) {
+    data.taskNote = [];
+  } else {
+    data.taskNote = [{
+      note: data.taskNote,
+      userID: data.taskCreator,
+      dateTime: data.taskCreateDate,
+      currentState: data.taskState,
+    }];
+  }
   try {
     const rNumber = await TASKC.FetchRnumber(data.appAcronym);
-    console.log("rnumber", rNumber.App_Rnumber);
     const newRnumber = rNumber.App_Rnumber + 1;
-    console.log("newRnumber", newRnumber, typeof newRnumber);
     const newTaskID = `${data.appAcronym}_${rNumber.App_Rnumber}`;
     data.taskID = newTaskID;
     const result = await TASKC.CreateNewTask(
@@ -286,7 +244,7 @@ router.post("/createtask", async function (req, res) {
       data.taskCreateDate
     );
     TASKC.UpdateRnumber(data.appAcronym, newRnumber);
-    res.status(200).json(result);
+    res.status(200).json({ message: "Create new task successful" });
   } catch (err) {
     console.log("err", err);
     res.status(400).json(err);
@@ -319,6 +277,7 @@ router.get("/appgroups", async function (req, res) {
         const result2 = await TASKC.FetchAppDetails(appArr[i]);
         package.push(result2[0]);
       }
+      // const finalPackage = JSON.parse(package)
       res.status(200).json(package);
     }
   } catch (err) {
@@ -377,7 +336,7 @@ router.get("/appgroups/:appAcronym", async function (req, res) {
   }
 });
 
-//! ======================    @     FEmail route   ==============================
+//! ======================    @     Email route   ==============================
 router.post("/appgroups/email", async function (req, res) {
   console.log("hit here");
   const { userID, groupName } = req.body;

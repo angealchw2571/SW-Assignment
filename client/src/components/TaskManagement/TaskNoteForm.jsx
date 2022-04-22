@@ -7,8 +7,14 @@ import axios from "axios";
 import { useAtom } from "jotai";
 import { userSessionAtom } from "../LoginPage";
 import { styled } from "@mui/material/styles";
+import { toast } from "react-toastify";
 
-function TaskNoteForm({ taskData, setModalOpen, getData }) {
+function TaskNoteForm({
+  taskData,
+  setModalOpen,
+  handleModalCloseViewTask,
+  handleRefresh,
+}) {
   const [sessionData, setSessionData] = useAtom(userSessionAtom);
 
   const CustomTextField = styled(TextField)({
@@ -36,9 +42,12 @@ function TaskNoteForm({ taskData, setModalOpen, getData }) {
       .post(`/api/app/tasknote/${taskData.Task_id}`, data)
       .then((res) => {
         if (res) {
-          setModalOpen(false);
-          getData();
-          console.log("hello");
+          toast.success(res.data.message, { autoClose: 5000 });
+          setTimeout(() => {
+            setModalOpen(false);
+            handleModalCloseViewTask();
+            handleRefresh("ALL");
+          }, 2000);
         }
       })
       .catch(function (error) {
