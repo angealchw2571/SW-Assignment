@@ -26,6 +26,9 @@ import CreateNewApp from "./CreateNewApp";
 import { Link } from "react-router-dom";
 import CreateNewTask from "./CreateNewTask";
 import checkPermissions from "../checkPermissions";
+import CreateNewPlan from "./CreateNewPlan";
+import SubjectIcon from "@mui/icons-material/Subject";
+import { Tooltip } from "@mui/material";
 
 function AppHomeNew() {
   const [networkStatus, setNetworkStatus] = useState("pending");
@@ -36,7 +39,9 @@ function AppHomeNew() {
   const [modalOpenForm, setModalOpenForm] = useState(false);
   const [modalCreateApp, setModalCreateApp] = useState(false);
   const [modalCreateTask, setModalCreateTask] = useState(false);
+  const [modalCreatePlan, setModalCreatePlan] = useState(false);
   const [modalTaskDataIndex, setModalTaskDataIndex] = useState();
+  const [message, setMessage] = useState("Apps");
   const sessionData = useAtom(userSessionAtom)[0];
   const drawerWidth = 240;
   const Drawer = styled(MuiDrawer, {
@@ -78,10 +83,15 @@ function AppHomeNew() {
     height: "50vh",
     borderRadius: 10,
   };
-  const handleModelFunc = (task_id) => {
-    setModalOpenViewTask(!modalOpenViewTask);
-    taskData.forEach((e, i) => {
-      if (e.Task_id === task_id) {
+  const handleModelFunc = (task_id, ACTION) => {
+
+    if (ACTION === "VIEW"){
+      setModalOpenViewTask(!modalOpenViewTask);
+    } else if (ACTION ==="ADD"){
+      setModalOpenForm(!modalOpenForm)
+    }
+      taskData.forEach((e, i) => {
+        if (e.Task_id === task_id) {
         setModalTaskDataIndex(i);
       }
     });
@@ -150,17 +160,15 @@ function AppHomeNew() {
       });
   };
 
-
-  const buttonPermission = () => {
-      let value= false
-      appData.forEach((e,i) => {
-          if (checkPermissions(e.App_permit_createTask, sessionData.role_groups)){
-            //   return true
-            value = true
-          }
-      })
-       return value
-  }
+  const buttonTaskPermission = () => {
+    let value = false;
+    appData.forEach((e, i) => {
+      if (checkPermissions(e.App_permit_createTask, sessionData.role_groups)) {
+        value = true;
+      }
+    });
+    return value;
+  };
 
   return (
     <>
@@ -177,11 +185,12 @@ function AppHomeNew() {
                   open
                   sx={{ display: `${appData.length === 0 ? "none" : "block"}` }}
                 >
-                  <Toolbar>
+                  <Toolbar sx={{ py: 4 }}>
                     <div
                       onClick={() => setModalCreateApp(!modalCreateApp)}
                       style={{
                         padding: 10,
+                        textAlign: "center",
                         backgroundColor: "#e4d4ff",
                         textDecoration: "none",
                         borderRadius: 10,
@@ -196,23 +205,48 @@ function AppHomeNew() {
                         }`,
                       }}
                     >
-                      <Typography>Create App</Typography>
+                      <Typography>
+                        Create <br /> App
+                      </Typography>
+                    </div>
+                    <div
+                      onClick={() => setModalCreatePlan(!modalCreatePlan)}
+                      style={{
+                        padding: 10,
+                        textAlign: "center",
+                        backgroundColor: "#e4d4ff",
+                        borderRadius: 10,
+                        marginLeft: 5,
+                        display: `${
+                          checkPermissions(
+                            ["Project Manager"],
+                            sessionData.role_groups
+                          )
+                            ? "block"
+                            : "none"
+                        }`,
+                      }}
+                    >
+                      <Typography>
+                        Create <br />
+                        Plan
+                      </Typography>
                     </div>
                     <div
                       onClick={() => setModalCreateTask(!modalCreateTask)}
                       style={{
                         padding: 10,
+                        textAlign: "center",
                         backgroundColor: "#e4d4ff",
                         borderRadius: 10,
                         marginLeft: 5,
-                        display: `${
-                            buttonPermission()
-                              ? "block"
-                              : "none"
-                          }`,
+                        display: `${buttonTaskPermission() ? "block" : "none"}`,
                       }}
                     >
-                      <Typography>Create Task</Typography>
+                      <Typography>
+                        Create
+                        <br /> Task
+                      </Typography>
                     </div>
                   </Toolbar>
                   <Divider />
@@ -250,6 +284,7 @@ function AppHomeNew() {
                           sx={{ py: 1.5 }}
                           onClick={() => {
                             handleQuery(e.App_Acronym);
+                            setMessage(`${e.App_Acronym}`);
                           }}
                         >
                           <ListItemIcon sx={{ color: `${e.App_Color}` }}>
@@ -259,9 +294,35 @@ function AppHomeNew() {
                         </ListItemButton>
                         <Link
                           to={`/app/edit/${e.App_Acronym}`}
-                          style={{ textDecoration: "none" }}
+                          style={{
+                            textDecoration: "none",
+                            display: `${
+                              checkPermissions(
+                                ["Project Manager"],
+                                sessionData.role_groups
+                              )
+                                ? "block"
+                                : "none"
+                            }`,
+                          }}
                         >
-                          <ListItemButton>⚙️</ListItemButton>
+                          <Tooltip title="Edit App">
+                            <ListItemButton sx={{ fontSize: "small" }}>
+                              ⚙️
+                            </ListItemButton>
+                          </Tooltip>
+                        </Link>
+                        <Link
+                          to={`/app/view/${e.App_Acronym}`}
+                          style={{
+                            textDecoration: "none",
+                          }}
+                        >
+                          <Tooltip title="View more">
+                            <ListItemButton sx={{ textDecoration: "none" }}>
+                              <SubjectIcon sx={{ fontSize: "medium" }} />
+                            </ListItemButton>
+                          </Tooltip>
                         </Link>
                       </div>
                     ))}
@@ -270,7 +331,8 @@ function AppHomeNew() {
                 </Drawer>
               </Grid>
               <Grid item xs={9}>
-                <Typography sx={{ fontSize: 48, my: 2 }}>Apps</Typography>
+                {/* <Typography sx={{ fontSize: 48, my: 2 }}>Apps</Typography> */}
+                <Typography sx={{ fontSize: 48, my: 2 }}>{message}</Typography>
                 {appData.length === 0 ? (
                   <div style={{ height: "50vh" }}>
                     Sorry there are no apps assigned to you
@@ -286,6 +348,8 @@ function AppHomeNew() {
                             taskData={taskData}
                             handleModelFunc={handleModelFunc}
                             sessionData={sessionData}
+                            setModalOpenForm={setModalOpenForm}
+                            modalOpenForm={modalOpenForm}
                           />
                         </div>
                       </>
@@ -354,6 +418,14 @@ function AppHomeNew() {
                 setModalCreateTask={setModalCreateTask}
                 modalCreateTask={modalCreateTask}
               />
+            </Box>
+          </Modal>
+          <Modal
+            open={modalCreatePlan}
+            onClose={() => setModalCreatePlan(!modalCreatePlan)}
+          >
+            <Box sx={{ ...style, height: "80vh" }}>
+              <CreateNewPlan appData={appData} />
             </Box>
           </Modal>
         </Container>

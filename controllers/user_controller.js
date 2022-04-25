@@ -75,7 +75,7 @@ router.post("/edit/reset/:id", async function (req, res) {
 
   try {
     const data = await USERC.UpdateUserValues(id, hashPassword, RESET_ACTION);
-    res.status(200).json({ message: "Password Reset Successful" });
+    res.status(200).json({ message: "Password Reset Successful. New password is 123456Aa$!" });
   } catch (err) {
     console.log("error from catching block", err);
     res.status(400).json(err);

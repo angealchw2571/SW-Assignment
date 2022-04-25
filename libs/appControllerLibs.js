@@ -21,6 +21,19 @@ function FetchAllPlan() {
   });
 }
 
+function FetchPlanApp(AppAcronym) {
+  return new Promise((resolve, reject) => {
+    connection.query("SELECT * from plan WHERE Plan_App_Acronym = ?;",[AppAcronym], (err, result) => {
+      if (err) {
+        return reject(err);
+      } else {
+        console.log("fetch all plan success");
+        return resolve(result);
+      }
+    });
+  });
+}
+
 function FetchTask(AppAcronym) {
   return new Promise((resolve, reject) => {
     connection.query(
@@ -39,6 +52,7 @@ function FetchTask(AppAcronym) {
     );
   });
 }
+
 function FetchAllTask() {
   return new Promise((resolve, reject) => {
     connection.query("SELECT * from task ;", (err, result) => {
@@ -110,7 +124,8 @@ function CreateNewApp(
   app_permit_doing,
   app_permit_done,
   app_permit_createTask,
-  App_Rnumber
+  App_Rnumber,
+  appColor
 ) {
   app_permit_toDoList = JSON.stringify(app_permit_toDoList);
   app_permit_doing = JSON.stringify(app_permit_doing);
@@ -128,9 +143,10 @@ function CreateNewApp(
       App_permit_toDoList, 
       App_permit_Doing, 
       App_permit_Done,
-      App_permit_createTask
+      App_permit_createTask,
+      App_Color
       ) 
-      VALUES (?,?,?,?,?,?,?,?,?)`;
+      VALUES (?,?,?,?,?,?,?,?,?,?)`;
     connection.query(
       sqlQuery,
       [
@@ -143,6 +159,7 @@ function CreateNewApp(
         app_permit_doing,
         app_permit_done,
         app_permit_createTask,
+        appColor
       ],
       (err, result) => {
         if (err) {
@@ -166,7 +183,8 @@ function UpdateApp(
   app_permit_doing,
   app_permit_done,
   app_permit_createTask,
-  app_Rnumber
+  app_Rnumber,
+  app_color
 ) {
   app_permit_toDoList = JSON.stringify(app_permit_toDoList);
   app_permit_doing = JSON.stringify(app_permit_doing);
@@ -183,7 +201,8 @@ function UpdateApp(
       App_permit_toDoList = ?, 
       App_permit_Doing = ?, 
       App_permit_Done = ?,
-      App_permit_createTask = ?
+      App_permit_createTask = ?,
+      App_Color = ?
       WHERE App_Acronym = ?
       ;`;
     connection.query(
@@ -197,6 +216,7 @@ function UpdateApp(
         app_permit_doing,
         app_permit_done,
         app_permit_createTask,
+        app_color,
         app_acronym,
       ],
       (err, result) => {
@@ -216,20 +236,23 @@ function CreateNewPlan(
   Plan_App_Acronym,
   Plan_MVP_name,
   Plan_startDate,
-  Plan_endDate
+  Plan_endDate,
+  Plan_description
 ) {
+  Plan_startDate = moment(Plan_startDate).format("YYYY-MM-DD")
+  Plan_endDate = moment(Plan_endDate).format("YYYY-MM-DD")
   return new Promise((resolve, reject) => {
-    const sqlQuery = `INSERT INTO plan (Plan_App_Acronym, Plan_MVP_name, Plan_startDate, Plan_endDate) 
-      VALUES ( ?, ?, ?, ?)`;
+    const sqlQuery = `INSERT INTO plan (Plan_App_Acronym, Plan_MVP_name, Plan_startDate, Plan_endDate, Plan_description) 
+      VALUES ( ?, ?, ?, ?, ?)`;
     connection.query(
       sqlQuery,
-      [Plan_App_Acronym, Plan_MVP_name, Plan_startDate, Plan_endDate],
+      [Plan_App_Acronym, Plan_MVP_name, Plan_startDate, Plan_endDate, Plan_description],
       (err, result) => {
         if (err) {
           return reject(err);
         } else {
           console.log("create plan success");
-          return resolve(result);
+          return resolve(true);
         }
       }
     );
@@ -400,6 +423,19 @@ function FetchGroupTeamOnApp(App_Acronym) {
     });
   });
 }
+function FetchGroupColor(group_name) {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = `SELECT group_color from groups_table WHERE group_name = ?;`;
+    connection.query(sqlQuery, [group_name], (err, result) => {
+      if (err) {
+        console.log(">>", err);
+        return reject(err);
+      } else {
+        return resolve(result[0]);
+      }
+    });
+  });
+}
 
 //! ======================         unused function      ===========================
 function setTaskState(task_state, task_id) {
@@ -553,4 +589,6 @@ module.exports = {
   UpdateRnumber,
   UpdateTask,
   CreateNewGroup,
+  FetchGroupColor,
+  FetchPlanApp,
 };

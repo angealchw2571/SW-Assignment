@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import axios from "axios";
 import {
   Button,
   Grid,
@@ -10,44 +11,30 @@ import {
   InputLabel,
   OutlinedInput,
 } from "@mui/material";
-import { useAtom } from "jotai";
-import { userSessionAtom } from "../LoginPage";
-import axios from "axios";
 import { toast } from "react-toastify";
-import checkPermissions from "../checkPermissions";
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import DatePicker from "@mui/lab/DatePicker";
 
-function CreateNewTask({
-  appData,
-  handleRefresh,
-  setModalCreateTask,
-  modalCreateTask,
-}) {
-  const [sessionData, setSessionData] = useAtom(userSessionAtom);
-  
-  
-  let newAppData = [];
-  appData.forEach((e, i) => {
-    if (checkPermissions(e.App_permit_createTask, sessionData.role_groups)) {
-      newAppData.push(e);
-    }
-  });
-  console.log("newAppData", newAppData)
-  const [appSelect, setAppSelect] = useState(newAppData[0].App_Acronym);
+function CreateNewPlan({ appData }) {
+  console.log("appData, create new plan", appData);
+  const [appSelect, setAppSelect] = useState(appData[0].App_Acronym);
+  const [startDate, setStartDate] = useState();
+  const [endDate, setEndDate] = useState();
 
   const handleOnChange = (event) => {
     setAppSelect(event.target.value);
   };
 
   const handleQuery = async (data) => {
-    // console.log("data query", data);
     await axios
-      .post(`/api/app/createtask`, data)
+      .post(`/api/app/createplan`, data)
       .then((res) => {
         if (res) {
           toast.success(res.data.message, { autoClose: 5000 });
           setTimeout(() => {
-            setModalCreateTask(!modalCreateTask);
-            handleRefresh("ALL");
+            // setModalCreateTask(!modalCreateTask);
+            // handleRefresh("ALL");
           }, 2000);
         }
       })
@@ -59,20 +46,16 @@ function CreateNewTask({
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const taskName = event.target.taskName.value;
-    const taskDescription = event.target.taskDescription.value;
-    const taskNote = event.target.taskNote.value;
-
+    const { planName, planDescription } = event.target;
     const data = {
-      appAcronym: appSelect,
-      taskName: taskName,
-      taskDescription: taskDescription,
-      taskNote: taskNote,
-      taskState: "OPEN",
-      taskCreator: sessionData.username,
-      taskOwner: sessionData.username,
-      taskCreateDate: new Date(),
+      plan_app_acronym: appSelect,
+      plan_mvp_name: planName.value,
+      plan_description: planDescription.value,
+      plan_startDate: startDate,
+      plan_endDate: endDate,
     };
+
+    console.log("data", data);
     handleQuery(data);
   };
 
@@ -90,7 +73,7 @@ function CreateNewTask({
         onSubmit={handleSubmit}
       >
         <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
-          Create New Task
+          Create New Plan
         </Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={12}>
@@ -103,7 +86,7 @@ function CreateNewTask({
               input={<OutlinedInput />}
               onChange={handleOnChange}
             >
-              {newAppData.map((e, i) => {
+              {appData.map((e, i) => {
                 return (
                   <MenuItem key={i} value={e.App_Acronym}>
                     <span style={{ color: `${e.App_Color}`, paddingRight: 10 }}>
@@ -117,12 +100,12 @@ function CreateNewTask({
           </Grid>
           <Grid item xs={12} sm={12}>
             <TextField
-              name="taskName"
+              name="planName"
               required
               size="small"
               fullWidth
-              id="taskName"
-              label="Task Name"
+              id="planName"
+              label="Plan MVP Name"
               color="secondary"
               inputProps={{ maxLength: 100 }}
               autoFocus
@@ -130,30 +113,41 @@ function CreateNewTask({
           </Grid>
           <Grid item xs={12} sm={12}>
             <TextField
-              name="taskDescription"
+              name="planDescription"
               required
               multiline
               rows={4}
               fullWidth
               inputProps={{ maxLength: 250 }}
-              id="taskDescription"
-              label="Task Description"
+              id="planDescription"
+              label="Plan Description"
               color="secondary"
               autoFocus
             />
           </Grid>
-          <Grid item xs={12} sm={12}>
-            <TextField
-              name="taskNote"
-              fullWidth
-              multiline
-              inputProps={{ maxLength: 100 }}
-              rows={2}
-              id="taskNotes"
-              label="Task Notes"
-              color="secondary"
-              autoFocus
-            />
+          <Grid item xs={6}>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DatePicker
+                label="Start Date"
+                value={startDate}
+                onChange={(newValue) => {
+                  setStartDate(newValue);
+                }}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
+          </Grid>
+          <Grid item xs={6}>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DatePicker
+                label="End Date"
+                value={endDate}
+                onChange={(newValue) => {
+                  setEndDate(newValue);
+                }}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
           </Grid>
         </Grid>
         <Button
@@ -169,11 +163,11 @@ function CreateNewTask({
             },
           }}
         >
-          Add Task
+          Add Plan
         </Button>
       </Box>
     </>
   );
 }
 
-export default CreateNewTask;
+export default CreateNewPlan;

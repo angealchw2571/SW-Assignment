@@ -21,6 +21,7 @@ import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import DatePicker from "@mui/lab/DatePicker";
 import { useParams } from "react-router";
 import {Link} from "react-router-dom"
+import CreateAppColorBox from "./CreateAppColorBox";
 
 function CreateNewApp() {
   const [networkStatus, setNetworkStatus] = useState("pending");
@@ -30,6 +31,7 @@ function CreateNewApp() {
   const [endDate, setEndDate] = useState();
   const [editAppData, setEditAppData] = useState();
   const [groupRoleArr, setGroupRoleArr] = useState([]);
+  const [appColor, setAppColor] = useState()
   const [permissionForm, setPermissionForm] = useState({
     toDo: [],
     doing: [],
@@ -153,6 +155,7 @@ function CreateNewApp() {
       endDate: endDate,
       permissionForm: permissionForm,
       groupRoleArr: groupRoleArr,
+      appColor: appColor
     });
   };
 
@@ -388,7 +391,7 @@ function CreateNewApp() {
                     ))}
                   </Select>
                 </Grid>
-                <Grid item xs={6} sm={6}>
+                <Grid item xs={12} sm={12}>
                   <InputLabel sx={{ fontSize: 14, my: 1 }}>
                     Task Create Permissions
                   </InputLabel>
@@ -420,6 +423,7 @@ function CreateNewApp() {
                     ))}
                   </Select>
                 </Grid>
+                <CreateAppColorBox  defaultColor={`${editAppData.App_Color}`} setAppColor={setAppColor}/>
               </Grid>
               <Button
                 type="submit"

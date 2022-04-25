@@ -17,12 +17,20 @@ import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 const moment = require("moment");
 const checkPermissions = require("../checkPermissions");
 
-function KanbanBoardNew({ taskData, appData, handleModelFunc, sessionData }) {
+function KanbanBoardNew({
+  taskData,
+  appData,
+  handleModelFunc,
+  sessionData,
+  setModalOpenForm,
+  modalOpenForm,
+}) {
   let OPEN = [];
   let TODO = [];
   let DOING = [];
   let DONE = [];
 
+  // console.log("taskData", taskData);
 
   for (let i = 0; i < taskData.length; i++) {
     if (taskData[i].Task_state === "TODO") {
@@ -227,7 +235,7 @@ function KanbanBoardNew({ taskData, appData, handleModelFunc, sessionData }) {
                   {args.description.e.Task_notes.length > 0 ? (
                     <Button
                       size="small"
-                      onClick={() => handleModelFunc(args.id)}
+                      onClick={() => handleModelFunc(args.id, "VIEW")}
                       sx={{
                         float: "right",
                         fontSize: 8,
@@ -240,7 +248,23 @@ function KanbanBoardNew({ taskData, appData, handleModelFunc, sessionData }) {
                     >
                       notes
                     </Button>
-                  ) : null}
+                  ) : (
+                    <Button
+                      size="small"
+                      onClick={() => handleModelFunc(args.id, "ADD")}
+                      sx={{
+                        float: "right",
+                        fontSize: 8,
+                        bgcolor: "#ead8f2",
+                        color: "black",
+                        ":hover": {
+                          backgroundColor: "#e1b8f2",
+                        },
+                      }}
+                    >
+                      add new note
+                    </Button>
+                  )}
 
                   <Typography sx={{ fontSize: 13 }}>
                     {args.description.e.Task_description}

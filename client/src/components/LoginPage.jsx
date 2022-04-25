@@ -94,6 +94,7 @@ function Login() {
                       name="password"
                       required
                       fullWidth
+                      type="password"
                       color="secondary"
                       id="password"
                       label="Password"

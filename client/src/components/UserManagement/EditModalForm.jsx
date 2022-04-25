@@ -110,13 +110,12 @@ function EditModalForm({ roleData, groupData, userData, handleReFetch }) {
         <Button
           onClick={handleReset}
           sx={{
-            bgcolor: "#E1D6EE",
             position: "absolute",
             right: "10%",
+            bgcolor: "#E1D6EE",
             color: "black",
             ":hover": {
-              backgroundColor: "#ff8aae",
-              color: "#f9f1f1",
+              backgroundColor: "#C2ADDD",
             },
           }}
         >
@@ -164,7 +163,7 @@ function EditModalForm({ roleData, groupData, userData, handleReFetch }) {
             </Select>
           </Grid>
           <Grid item xs={6} sm={6}>
-            <InputLabel sx={{ fontSize: 14, my: 1 }}>Group</InputLabel>
+            <InputLabel sx={{ fontSize: 14, my: 1 }}> Assign Group</InputLabel>
             <Select
               value={groupForm}
               onChange={handleGroupChange}

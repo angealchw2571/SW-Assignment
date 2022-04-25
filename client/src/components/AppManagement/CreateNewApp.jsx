@@ -18,13 +18,16 @@ import Loadingbar from "../LoadingBar";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import DatePicker from "@mui/lab/DatePicker";
+import { HexColorPicker } from "react-colorful";
+import CreateAppColorBox from "./CreateAppColorBox";
 
-function CreateNewApp({handleRefresh, setModalCreateApp, modalCreateApp}) {
+function CreateNewApp({ handleRefresh, setModalCreateApp, modalCreateApp }) {
   const [networkStatus, setNetworkStatus] = useState("pending");
   const [roleData, setRoleData] = useState();
   const [groupData, setGroupData] = useState();
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
+  const [appColor, setAppColor] = useState()
 
   const [groupRoleArr, setGroupRoleArr] = useState([]);
   const [permissionForm, setPermissionForm] = useState({
@@ -111,13 +114,13 @@ function CreateNewApp({handleRefresh, setModalCreateApp, modalCreateApp}) {
 
   const handleQuery = async (data) => {
     await axios
-    .post(`/api/app/createapp`, data)
-    .then((res) => {
+      .post(`/api/app/createapp`, data)
+      .then((res) => {
         if (res) {
           toast.success(res.data.message, { autoClose: 5000 });
           setTimeout(() => {
-            setModalCreateApp(!modalCreateApp)
-            handleRefresh("ALL")
+            setModalCreateApp(!modalCreateApp);
+            handleRefresh("ALL");
           }, 2000);
         }
       })
@@ -129,15 +132,16 @@ function CreateNewApp({handleRefresh, setModalCreateApp, modalCreateApp}) {
   const handleSubmit = (event) => {
     event.preventDefault();
     const { appAcronym, appReleaseNumber, appDescription } = event.target;
-      handleQuery({
-        appAcronym: appAcronym.value,
-        appReleaseNumber: appReleaseNumber.value || 1,
-        appDescription: appDescription.value,
-        startDate:startDate,
-        endDate:endDate,
-        permissionForm:permissionForm,
-        groupRoleArr:groupRoleArr
-      });
+    handleQuery({
+      appAcronym: appAcronym.value,
+      appReleaseNumber: appReleaseNumber.value || 1,
+      appDescription: appDescription.value,
+      startDate: startDate,
+      endDate: endDate,
+      permissionForm: permissionForm,
+      groupRoleArr: groupRoleArr,
+      appColor: appColor
+    });
   };
 
   return (
@@ -226,13 +230,16 @@ function CreateNewApp({handleRefresh, setModalCreateApp, modalCreateApp}) {
                 required
                 value={groupRoleArr}
                 onChange={handleGroupRoleChange}
-                input={<OutlinedInput margin='dense'label="Tag" />}
+                input={<OutlinedInput margin="dense" label="Tag" />}
                 renderValue={(selected) => selected.join(", ")}
                 MenuProps={MenuProps}
-                
               >
                 {groupData.map((e) => (
-                  <MenuItem key={e.group_name} value={e.group_name} sx={{height:40}}>
+                  <MenuItem
+                    key={e.group_name}
+                    value={e.group_name}
+                    sx={{ height: 40 }}
+                  >
                     <Checkbox
                       color="secondary"
                       checked={groupRoleArr.indexOf(e.group_name) > -1}
@@ -264,7 +271,11 @@ function CreateNewApp({handleRefresh, setModalCreateApp, modalCreateApp}) {
                 MenuProps={MenuProps}
               >
                 {roleData.map((e) => (
-                  <MenuItem key={e.role_name} value={e.role_name}  sx={{height:40}}>
+                  <MenuItem
+                    key={e.role_name}
+                    value={e.role_name}
+                    sx={{ height: 40 }}
+                  >
                     <Checkbox
                       color="secondary"
                       checked={permissionForm.toDo.indexOf(e.role_name) > -1}
@@ -288,7 +299,11 @@ function CreateNewApp({handleRefresh, setModalCreateApp, modalCreateApp}) {
                 MenuProps={MenuProps}
               >
                 {roleData.map((e) => (
-                  <MenuItem key={e.role_name} value={e.role_name}  sx={{height:40}}>
+                  <MenuItem
+                    key={e.role_name}
+                    value={e.role_name}
+                    sx={{ height: 40 }}
+                  >
                     <Checkbox
                       color="secondary"
                       checked={permissionForm.doing.indexOf(e.role_name) > -1}
@@ -312,7 +327,11 @@ function CreateNewApp({handleRefresh, setModalCreateApp, modalCreateApp}) {
                 MenuProps={MenuProps}
               >
                 {roleData.map((e) => (
-                  <MenuItem key={e.role_name} value={e.role_name}  sx={{height:40}}>
+                  <MenuItem
+                    key={e.role_name}
+                    value={e.role_name}
+                    sx={{ height: 40 }}
+                  >
                     <Checkbox
                       color="secondary"
                       checked={permissionForm.done.indexOf(e.role_name) > -1}
@@ -322,7 +341,7 @@ function CreateNewApp({handleRefresh, setModalCreateApp, modalCreateApp}) {
                 ))}
               </Select>
             </Grid>
-            <Grid item xs={6} sm={6}>
+            <Grid item xs={12} sm={12}>
               <InputLabel sx={{ fontSize: 14, my: 1 }}>
                 Task Create Permissions
               </InputLabel>
@@ -338,7 +357,11 @@ function CreateNewApp({handleRefresh, setModalCreateApp, modalCreateApp}) {
                 MenuProps={MenuProps}
               >
                 {roleData.map((e) => (
-                  <MenuItem key={e.role_name} value={e.role_name}  sx={{height:40}}>
+                  <MenuItem
+                    key={e.role_name}
+                    value={e.role_name}
+                    sx={{ height: 40 }}
+                  >
                     <Checkbox
                       color="secondary"
                       checked={
@@ -349,13 +372,14 @@ function CreateNewApp({handleRefresh, setModalCreateApp, modalCreateApp}) {
                   </MenuItem>
                 ))}
               </Select>
+              <CreateAppColorBox setAppColor={setAppColor} />
             </Grid>
           </Grid>
           <Button
             type="submit"
             variant="contained"
             sx={{
-              mt:10,
+              mt: 10,
               mb: 2,
               bgcolor: "#E1D6EE",
               color: "black",

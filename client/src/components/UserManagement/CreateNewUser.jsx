@@ -84,11 +84,11 @@ function CreateNewUser() {
       .post(`/api/user/new`, data)
       .then((res) => {
         if (res) {
-          toast.success(res.data.message,  { autoClose: 4000 });
-          setReload(!reload)
-          setRoleArr([])
-          setGroupForm("")
-          setPassword1("")
+          toast.success(res.data.message, { autoClose: 4000 });
+          setReload(!reload);
+          setRoleArr([]);
+          setGroupForm("");
+          setPassword1("");
         }
       })
       .catch(function (error) {
@@ -181,6 +181,7 @@ function CreateNewUser() {
                         name="password1"
                         required
                         fullWidth
+                        type="password"
                         inputProps={{ maxLength: 10 }}
                         onChange={handlePassword1}
                         color="secondary"
@@ -191,6 +192,7 @@ function CreateNewUser() {
                       <TextField
                         name="password2"
                         required
+                        type="password"
                         fullWidth
                         inputProps={{ maxLength: 10 }}
                         onChange={handlePassword2}

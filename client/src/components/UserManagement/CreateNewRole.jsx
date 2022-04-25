@@ -14,7 +14,6 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 function CreateNewRole() {
-  // const [reload, setReload] = useState(false);
   const [roleName, setRoleName] = useState("");
   const [roleDescription, setRoleDescription] = useState("");
 

@@ -4,12 +4,8 @@ import { Button } from "@mui/material";
 const moment = require("moment");
 
 function TaskModal({ modalTaskData, handleCloseModalForm }) {
-    // const reverseTaskNotes = modalTaskData.Task_notes.map((e) => e).reverse();
-//   console.log("taskModal", modalTaskData.Task_notes);
-//   console.log("taskModal", reverseTaskNotes);
 
   const stateComponent = (state) => {
-    // console.log("state", state);
     if (state === "TODO") {
       return <Typography sx={{ color: "red" }}>{state}</Typography>;
     } else if (state === "DOING") {

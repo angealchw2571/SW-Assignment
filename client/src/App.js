@@ -108,7 +108,7 @@ function PrivateRoute({children}){
           <Route exact path="/app/home" element={<PrivateRoute><AppHomeNew /></PrivateRoute>} />
           <Route exact path="/appcreate" element={<PrivateRoute><CreateApp /></PrivateRoute>} />
           <Route exact path="/app/edit/:appAcronym" element={<PrivateRoute><EditAppNew /></PrivateRoute>} />
-          <Route exact path="/app/:appAcronym" element={<PrivateRoute><IndividualApp /></PrivateRoute>} />
+          <Route exact path="/app/view/:appAcronym" element={<PrivateRoute><IndividualApp /></PrivateRoute>} />
           <Route exact path="/apptask/:appAcronym/:taskID" element={<PrivateRoute><IndividualTask /></PrivateRoute>} />
         </Routes>
       </div>

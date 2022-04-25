@@ -14,10 +14,20 @@ router.get("/apps/:appAcronym", async function (req, res) {
       res.status(400).json({ message: "No app found" });
     } else {
       const result = await TASKC.FetchGroupTeamOnApp(appAcronym);
+      console.log("result", result.group_team_assignment);
       data[0].group_team_assignment = result.group_team_assignment;
+      let colorArr = [];
+      for (i = 0; i < result.group_team_assignment.length; i++) {
+        const colorResult = await TASKC.FetchGroupColor(
+          result.group_team_assignment[i]
+        );
+        colorArr.push(colorResult.group_color);
+      }
+      // console.log("colorArr", colorArr);
       res.status(200).json(data);
     }
   } catch (err) {
+    console.log("err", err);
     res.status(400).json(err);
   }
 });
@@ -26,6 +36,18 @@ router.get("/apps/:appAcronym", async function (req, res) {
 router.get("/apps", async function (req, res) {
   try {
     const data = await TASKC.FetchAllApp();
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+
+//* ======================    @     GET ALL PLANS WITH AppAcronym       ==============================
+router.get("/plan/:appAcronym", async function (req, res) {
+  const appAcronym = req.params.appAcronym
+  try {
+    const data = await TASKC.FetchPlanApp(appAcronym);
     res.status(200).json(data);
   } catch (err) {
     res.status(400).json(err);
@@ -117,7 +139,7 @@ router.post("/createapp", async function (req, res) {
   const app_permit_done = req.body.permissionForm.done;
   const app_permit_createTask = req.body.permissionForm.taskCreate;
   const group_team_assignment = req.body.groupRoleArr;
-
+  const appColor = req.body.appColor;
   try {
     const data = await TASKC.CreateNewApp(
       App_Acronym,
@@ -128,7 +150,8 @@ router.post("/createapp", async function (req, res) {
       app_permit_doing,
       app_permit_done,
       app_permit_createTask,
-      App_Rnumber
+      App_Rnumber,
+      appColor
     );
     if (data) {
       TASKC.AddAppTeamAssignment(App_Acronym, group_team_assignment);
@@ -152,6 +175,7 @@ router.post("/updateapp", async function (req, res) {
   const app_permit_done = req.body.permissionForm.done;
   const app_permit_createTask = req.body.permissionForm.taskCreate;
   const group_team_assignment = req.body.groupRoleArr;
+  const appColor = req.body.appColor;
 
   try {
     const data = await TASKC.UpdateApp(
@@ -163,7 +187,8 @@ router.post("/updateapp", async function (req, res) {
       app_permit_doing,
       app_permit_done,
       app_permit_createTask,
-      App_Rnumber
+      App_Rnumber,
+      appColor
     );
     if (data) {
       TASKC.UpdateAppTeamAssignment(App_Acronym, group_team_assignment);
@@ -177,23 +202,27 @@ router.post("/updateapp", async function (req, res) {
 
 //* =======================    @     Create new plan      ==============================
 router.post("/createplan", async function (req, res) {
-  const { plan_app_acronym, plan_mvp_name, plan_startDate, plan_endDate } =
-    req.body;
-
-  console.log("plan acronym", plan_app_acronym);
-  console.log("mvp name", plan_mvp_name);
-  console.log("startDate", plan_startDate);
-  console.log("endDate", plan_endDate);
+  const {
+    plan_app_acronym,
+    plan_mvp_name,
+    plan_startDate,
+    plan_endDate,
+    plan_description,
+  } = req.body;
 
   try {
     const data = await TASKC.CreateNewPlan(
       plan_app_acronym,
       plan_mvp_name,
       plan_startDate,
-      plan_endDate
+      plan_endDate,
+      plan_description
     );
-    res.status(200).json(data);
+    if (data) {
+      res.status(200).json({ message: "Create plan success" });
+    }
   } catch (err) {
+    console.log("error", err);
     res.status(400).json(err);
   }
 });
@@ -215,16 +244,17 @@ router.post("/creategroup", async function (req, res) {
 //* =======================    @     Create new task      ==============================
 router.post("/createtask", async function (req, res) {
   const data = req.body;
-  console.log("route", data);
   if (data.taskNote.length === 0) {
     data.taskNote = [];
   } else {
-    data.taskNote = [{
-      note: data.taskNote,
-      userID: data.taskCreator,
-      dateTime: data.taskCreateDate,
-      currentState: data.taskState,
-    }];
+    data.taskNote = [
+      {
+        note: data.taskNote,
+        userID: data.taskCreator,
+        dateTime: data.taskCreateDate,
+        currentState: data.taskState,
+      },
+    ];
   }
   try {
     const rNumber = await TASKC.FetchRnumber(data.appAcronym);
