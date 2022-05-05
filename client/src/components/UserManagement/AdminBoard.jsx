@@ -76,7 +76,7 @@ function AdminBoard() {
     setNetworkStatus2("pending");
 
     await axios
-      .get(url())
+      .get(url(), { auth: { username: "hello1", password: "hello2" } })
       .then((res) => {
         if (res) {
           setUserData(res.data);
@@ -111,7 +111,7 @@ function AdminBoard() {
       try {
         const res = await axios.get(`/api/user/checkroles`);
         const res2 = await axios.get(`/api/user/groups`);
-        const res3 = await axios.get(`/api/user/`);
+        const res3 = await axios.get(`/api/user/`, { auth: { username: "hello1", password: "hello2" } });
         setNetworkStatus("loading");
         setRoleData(res.data);
         setGroupData(res2.data);

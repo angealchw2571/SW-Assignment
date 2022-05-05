@@ -16,13 +16,13 @@ function Login() {
 
   const handleLogin = async (loginDetails) => {
     await axios
-      .post(`/api/session/login`, loginDetails)
+      .post(`/api/session/login`, loginDetails, { withCredentials: true })
       .then((res) => {
         if (res) {
+          console.log("res", res);
           setSession(res.data);
           toast.success("Success!");
           setTimeout(() => {
-            // navigate("/home");
             navigate("/app/home");
           }, 1500);
         }

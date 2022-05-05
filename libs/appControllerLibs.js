@@ -23,14 +23,18 @@ function FetchAllPlan() {
 
 function FetchPlanApp(AppAcronym) {
   return new Promise((resolve, reject) => {
-    connection.query("SELECT * from plan WHERE Plan_App_Acronym = ?;",[AppAcronym], (err, result) => {
-      if (err) {
-        return reject(err);
-      } else {
-        console.log("fetch all plan success");
-        return resolve(result);
+    connection.query(
+      "SELECT * from plan WHERE Plan_App_Acronym = ?;",
+      [AppAcronym],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        } else {
+          console.log("fetch all plan success");
+          return resolve(result);
+        }
       }
-    });
+    );
   });
 }
 
@@ -67,6 +71,24 @@ function FetchAllTask() {
     });
   });
 }
+function FetchTasksInState(state) {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "SELECT * from task WHERE Task_state =?;",
+      [state],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        } else {
+          result.map((e) => {
+            e.Task_notes = JSON.parse(e.Task_notes);
+          });
+          return resolve(result);
+        }
+      }
+    );
+  });
+}
 
 function FetchApp(AppAcronym) {
   return new Promise((resolve, reject) => {
@@ -82,6 +104,7 @@ function FetchApp(AppAcronym) {
             e.App_permit_toDoList = JSON.parse(e.App_permit_toDoList);
             e.App_permit_Done = JSON.parse(e.App_permit_Done);
             e.App_permit_createTask = JSON.parse(e.App_permit_createTask);
+            e.App_permit_Open = JSON.parse(e.App_permit_Open);
           });
           return resolve(result);
         }
@@ -159,7 +182,7 @@ function CreateNewApp(
         app_permit_doing,
         app_permit_done,
         app_permit_createTask,
-        appColor
+        appColor,
       ],
       (err, result) => {
         if (err) {
@@ -239,14 +262,20 @@ function CreateNewPlan(
   Plan_endDate,
   Plan_description
 ) {
-  Plan_startDate = moment(Plan_startDate).format("YYYY-MM-DD")
-  Plan_endDate = moment(Plan_endDate).format("YYYY-MM-DD")
+  Plan_startDate = moment(Plan_startDate).format("YYYY-MM-DD");
+  Plan_endDate = moment(Plan_endDate).format("YYYY-MM-DD");
   return new Promise((resolve, reject) => {
     const sqlQuery = `INSERT INTO plan (Plan_App_Acronym, Plan_MVP_name, Plan_startDate, Plan_endDate, Plan_description) 
       VALUES ( ?, ?, ?, ?, ?)`;
     connection.query(
       sqlQuery,
-      [Plan_App_Acronym, Plan_MVP_name, Plan_startDate, Plan_endDate, Plan_description],
+      [
+        Plan_App_Acronym,
+        Plan_MVP_name,
+        Plan_startDate,
+        Plan_endDate,
+        Plan_description,
+      ],
       (err, result) => {
         if (err) {
           return reject(err);
@@ -423,6 +452,7 @@ function FetchGroupTeamOnApp(App_Acronym) {
     });
   });
 }
+
 function FetchGroupColor(group_name) {
   return new Promise((resolve, reject) => {
     const sqlQuery = `SELECT group_color from groups_table WHERE group_name = ?;`;
@@ -436,35 +466,6 @@ function FetchGroupColor(group_name) {
     });
   });
 }
-
-//! ======================         unused function      ===========================
-function setTaskState(task_state, task_id) {
-  return new Promise((resolve, reject) => {
-    const sqlQuery = `UPDATE task SET 
-    Task_state = ? 
-    WHERE Task_id = ?`;
-    connection.query(sqlQuery, [task_state, task_id], (err, result) => {
-      if (err) {
-        console.log(">>", err);
-        return reject(err);
-      } else {
-        // console.log("update taskstate with task_id success", result);
-        return resolve(result);
-      }
-    });
-  });
-}
-
-function UpdateTaskState(package) {
-  const size = Object.keys(package).length;
-  for (let i = 0; i < size; i++) {
-    const keyName = Object.keys(package)[i];
-    package[keyName].forEach((e) => {
-      setTaskState(keyName, e);
-    });
-  }
-}
-//! ======================         unused function      ===========================
 
 function FetchSingleTask(task_id) {
   return new Promise((resolve, reject) => {
@@ -509,7 +510,6 @@ function AddTaskNotes(newTaskNotes, task_id) {
         console.log(">>", err);
         return reject(err);
       } else {
-        console.log("result", result);
         return resolve(result);
       }
     });
@@ -591,4 +591,5 @@ module.exports = {
   CreateNewGroup,
   FetchGroupColor,
   FetchPlanApp,
+  FetchTasksInState,
 };

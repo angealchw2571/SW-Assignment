@@ -3,6 +3,151 @@ const router = express.Router();
 const TASKC = require("../libs/appControllerLibs.js");
 const USERC = require("../libs/userControllerLibs.js");
 const EMAILC = require("../email.js");
+const JWTFunction = require("../libs/jwtLib");
+
+const isAdmin = async (req, res, next) => {
+  try {
+    const authResult = await authorisationFunc(
+      req.cookies.JWT,
+      req.headers.authorization
+    );
+    if (authResult) {
+      const roleGroup = await USERC.RoleGroupFetch(authResult.username);
+      const checkRoleResult = await USERC.CheckRole(
+        roleGroup[0].role_groups,
+        "Admin"
+      );
+      if (checkRoleResult) {
+        next();
+      } else {
+        res.status(400).json({
+          message: "Sorry you are not authorised to perform this action ",
+        });
+      }
+    } else {
+      res
+        .status(400)
+        .json({
+          message: "Sorry you are not authorised to perform this action",
+        });
+    }
+  } catch (err) {
+    console.log("isAdmin err", err);
+    res
+      .status(400)
+      .json({ message: "Sorry you are not authorised to perform this action" });
+  }
+
+  // try {
+  //   if (req.cookies.JWT) {
+  //     const result = await JWTFunction.validateJWT(req.cookies.JWT);
+  //     if (result) {
+  //       const roleGroup = await USERC.RoleGroupFetch(result.username);
+  //       const checkRoleResult = await USERC.CheckRole(
+  //         roleGroup[0].role_groups,
+  //         "Admin"
+  //       );
+  //       if (checkRoleResult) {
+  //         next();
+  //       } else {
+  //         res.status(400).json({
+  //           message: "Sorry you are not authorised to perform this action ",
+  //         });
+  //       }
+  //     } else {
+  //       res.status(400).json({
+  //         message: "Sorry you are not authorised to perform this action ",
+  //       });
+  //     }
+  //   } else if (req.headers.authorization) {
+  //     const authheader = req.headers.authorization;
+  //     const auth = new Buffer.from(authheader.split(" ")[1], "base64")
+  //       .toString()
+  //       .split(":");
+  //     const username = auth[0];
+  //     const password = auth[1];
+  //     const result = await USERC.FindUserData(username);
+  //     if (result) {
+  //       const passwordCheck = await USERC.CheckPassword(username, password);
+  //       if (passwordCheck) {
+  //         const roleGroup = await USERC.RoleGroupFetch(result[0].username);
+  //         const checkRoleResult = await USERC.CheckRole(
+  //           roleGroup[0].role_groups,
+  //           "Admin"
+  //         );
+  //         if (checkRoleResult) {
+  //           next();
+  //         } else {
+  //           res.status(400).json({
+  //             message: "Sorry you are not authorised to perform this action ",
+  //           });
+  //         }
+  //       } else {
+  //         res.status(400).json({ message: "Incorrect password" });
+  //       }
+  //     } else {
+  //       res.status(400).json({ message: "Sorry user not found" });
+  //     }
+  //   }
+  // } catch (err) {
+  //   console.log("isAdmin err", err);
+  //   res
+  //     .status(400)
+  //     .json({ message: "Sorry you are not authorised to perform this action" });
+  // }
+};
+
+const authorisationFunc = async (JWT, authheader) => {
+  if (JWT) {
+    const result = JWTFunction.validateJWT(JWT);
+    return result;
+  } else if (authheader) {
+    const auth = new Buffer.from(authheader.split(" ")[1], "base64")
+      .toString()
+      .split(":");
+    const username = auth[0];
+    const password = auth[1];
+    const result = await USERC.FindUserData(username);
+    if (result) {
+      const passwordCheck = await USERC.CheckPassword(username, password);
+      if (passwordCheck) {
+        return result[0];
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+};
+
+const validateAppPermission = async (appAcronym, userData, ACTION) => {
+  const roleGroup = await USERC.RoleGroupFetch(userData.username);
+  const appDetails = await TASKC.FetchApp(appAcronym);
+  if (roleGroup[0].role_groups.includes("Admin")) return true;
+  let data = {};
+  if (ACTION === "CREATETASK") {
+    data.arr = appDetails[0].App_permit_createTask;
+  } else if (ACTION === "OPEN") {
+    data.arr = appDetails[0].App_permit_Open;
+  } else if (ACTION === "TODO") {
+    data.arr = appDetails[0].App_permit_toDoList;
+  } else if (ACTION === "DOING") {
+    data.arr = appDetails[0].App_permit_Doing;
+  } else if (ACTION === "DONE") {
+    data.arr = appDetails[0].App_permit_Done;
+  }
+
+  const roleGroupArr = roleGroup[0].role_groups;
+  const matchArr = data.arr.filter((element) => roleGroupArr.includes(element));
+  if (matchArr.length === 0) {
+    return false;
+  } else {
+    return true;
+  }
+};
 
 //* ======================    @     GET single APPLICATION w/ appAcronym       ==============================
 router.get("/apps/:appAcronym", async function (req, res) {
@@ -14,7 +159,6 @@ router.get("/apps/:appAcronym", async function (req, res) {
       res.status(400).json({ message: "No app found" });
     } else {
       const result = await TASKC.FetchGroupTeamOnApp(appAcronym);
-      console.log("result", result.group_team_assignment);
       data[0].group_team_assignment = result.group_team_assignment;
       let colorArr = [];
       for (i = 0; i < result.group_team_assignment.length; i++) {
@@ -23,7 +167,6 @@ router.get("/apps/:appAcronym", async function (req, res) {
         );
         colorArr.push(colorResult.group_color);
       }
-      // console.log("colorArr", colorArr);
       res.status(200).json(data);
     }
   } catch (err) {
@@ -42,10 +185,9 @@ router.get("/apps", async function (req, res) {
   }
 });
 
-
 //* ======================    @     GET ALL PLANS WITH AppAcronym       ==============================
 router.get("/plan/:appAcronym", async function (req, res) {
-  const appAcronym = req.params.appAcronym
+  const appAcronym = req.params.appAcronym;
   try {
     const data = await TASKC.FetchPlanApp(appAcronym);
     res.status(200).json(data);
@@ -73,9 +215,21 @@ router.get("/alltasks", async function (req, res) {
   }
 });
 
+//? ========  Assignment 3         ==========    @     GET tasks  In certain state       ==============================
+router.get("/task/:state", isAdmin, async function (req, res) {
+  const { state } = req.params;
+
+  try {
+    const data = await TASKC.FetchTasksInState(state);
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
 //* ======================    @     GET ALL TASKS with AppAcronym       ==============================
 router.get("/tasks/:appAcronym", async function (req, res) {
   const { appAcronym } = req.params;
+  console.log("143 hit here!");
 
   try {
     const data = await TASKC.FetchTask(appAcronym);
@@ -114,16 +268,35 @@ router.post("/tasknote/:task_id", async function (req, res) {
 //* ======================    @     Handle kanban        ==============================
 router.post("/kanban", async function (req, res) {
   const data = req.body;
-  try {
-    const result = await TASKC.UpdateTask(
-      data.taskID,
-      data.taskState,
-      data.taskOwner
-    );
-    res.status(200).json(result);
-  } catch (err) {
-    console.log("err", err);
-    res.status(400).json(err);
+  const authResult = await authorisationFunc(req.cookies.JWT, req.headers.authorization);
+  const validationResult = await validateAppPermission(data.appAcronym, authResult, data.taskState );
+  console.log("validation result L275", validationResult);
+
+  if (validationResult) {
+    try {
+      const newNote = {
+        note: `${authResult.username} changed task state from ${data.previousTaskState} to ${data.taskState} `,
+        userID: `${authResult.username} `,
+        dateTime: data.dateTime,
+        currentState: data.taskState,
+      };
+      const result = await TASKC.UpdateTask(
+        data.taskID,
+        data.taskState,
+        data.taskOwner
+      );
+      const currentTask = await TASKC.FetchTaskNotes(data.taskID);
+      const newData = [...currentTask.Task_notes, newNote];
+      const finalResult = await TASKC.AddTaskNotes(newData, data.taskID);
+      res.status(200).json({ message: "Update success" });
+    } catch (err) {
+      console.log("err", err);
+      res.status(400).json(err);
+    }
+  } else {
+    res.status(400).json({
+      message: "Sorry you do not have permission to perform this task",
+    });
   }
 });
 
@@ -241,43 +414,59 @@ router.post("/creategroup", async function (req, res) {
   }
 });
 
-//* =======================    @     Create new task      ==============================
+//?  =======    Assignment 3    ===========    @     Create new task      ==============================
 router.post("/createtask", async function (req, res) {
   const data = req.body;
-  if (data.taskNote.length === 0) {
-    data.taskNote = [];
+  const authResult = await authorisationFunc(req.cookies.JWT, req.headers.authorization);
+  if (authResult) {
+    const validationResult = await validateAppPermission(data.appAcronym, authResult, "CREATETASK");
+    if (validationResult) {
+      try {
+        if (data.taskNote.length === 0) {
+          data.taskNote = [];
+        } else {
+          data.taskNote = [
+            {
+              note: data.taskNote,
+              userID: data.taskCreator,
+              dateTime: data.taskCreateDate,
+              currentState: data.taskState,
+            },
+          ];
+        }
+        const rNumber = await TASKC.FetchRnumber(data.appAcronym);
+        const newRnumber = rNumber.App_Rnumber + 1;
+        const newTaskID = `${data.appAcronym}_${rNumber.App_Rnumber}`;
+        data.taskID = newTaskID;
+        const result = await TASKC.CreateNewTask(
+          data.appAcronym,
+          "NULL",
+          data.taskID,
+          data.taskName,
+          data.taskDescription,
+          data.taskNote,
+          data.taskState,
+          data.taskCreator,
+          data.taskOwner,
+          data.taskCreateDate
+        );
+        TASKC.UpdateRnumber(data.appAcronym, newRnumber);
+        res.status(200).json({ message: "Create new task successful" });
+      } catch (err) {
+        console.log("err", err);
+        res.status(400).json(err);
+      }
+    } else {
+      res
+        .status(400)
+        .json({ message: "Sorry you do not enough permission to create task" });
+    }
   } else {
-    data.taskNote = [
-      {
-        note: data.taskNote,
-        userID: data.taskCreator,
-        dateTime: data.taskCreateDate,
-        currentState: data.taskState,
-      },
-    ];
-  }
-  try {
-    const rNumber = await TASKC.FetchRnumber(data.appAcronym);
-    const newRnumber = rNumber.App_Rnumber + 1;
-    const newTaskID = `${data.appAcronym}_${rNumber.App_Rnumber}`;
-    data.taskID = newTaskID;
-    const result = await TASKC.CreateNewTask(
-      data.appAcronym,
-      "NULL",
-      data.taskID,
-      data.taskName,
-      data.taskDescription,
-      data.taskNote,
-      data.taskState,
-      data.taskCreator,
-      data.taskOwner,
-      data.taskCreateDate
-    );
-    TASKC.UpdateRnumber(data.appAcronym, newRnumber);
-    res.status(200).json({ message: "Create new task successful" });
-  } catch (err) {
-    console.log("err", err);
-    res.status(400).json(err);
+    res
+      .status(400)
+      .json({
+        message: "Sorry you do not have enough permission to perform this task",
+      });
   }
 });
 
@@ -338,7 +527,6 @@ router.get("/apptasks", async function (req, res) {
           }
         });
       }
-      console.log("appArr", appArr);
 
       if (appArr.length === 0) {
         return res.status(200).json(appArr);

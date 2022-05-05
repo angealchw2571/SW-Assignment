@@ -2,23 +2,70 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const USERC = require("../libs/userControllerLibs.js");
+const JWTFunction = require("../libs/jwtLib");
+
 // const mysql = require("mysql");
 
-// const SUPERUSER = "superuser";
-// const ADMIN = "admin";
-// const USER = "user";
-// const userArray = ["superuser", "admin", "user"];
+const isAdmin = async (req, res, next) => {
+  try {
+    const authResult = await authorisationFunc(
+      req.cookies.JWT,
+      req.headers.authorization
+    );
+    if (authResult) {
+      const roleGroup = await USERC.RoleGroupFetch(authResult.username);
+      const checkRoleResult = await USERC.CheckRole(
+        roleGroup[0].role_groups,
+        "Admin"
+      );
+      if (checkRoleResult) {
+        next();
+      } else {
+        res.status(400).json({
+          message: "Sorry you are not authorised to perform this action ",
+        });
+      }
+    } else {
+      res
+        .status(400)
+        .json({
+          message: "Sorry you are not authorised to perform this action",
+        });
+    }
+  } catch (err) {
+    console.log("isAdmin err", err);
+    res
+      .status(400)
+      .json({ message: "Sorry you are not authorised to perform this action" });
+  }
 
-// const isAuth = (roleArr) => (req, res, next) => {
-//   if (req.session.role) {
-//     for (const r of roleArr) {
-//       if (req.session.role === r) {
-//         return next();
-//       }
-//     }
-//   }
-//   res.status(404).json({ message: "Authentication required" });
-// };
+};
+
+const authorisationFunc = async (JWT, authheader) => {
+  if (JWT) {
+    const result = JWTFunction.validateJWT(JWT);
+    return result;
+  } else if (authheader) {
+    const auth = new Buffer.from(authheader.split(" ")[1], "base64")
+      .toString()
+      .split(":");
+    const username = auth[0];
+    const password = auth[1];
+    const result = await USERC.FindUserData(username);
+    if (result) {
+      const passwordCheck = await USERC.CheckPassword(username, password);
+      if (passwordCheck) {
+        return result[0];
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+};
 
 //* ====================   @      EDIT PASSWORD       =============================
 router.put("/edit/pass/:id", async function (req, res) {
@@ -44,18 +91,28 @@ router.put("/edit/pass/:id", async function (req, res) {
 //* ====================   @      EDIT Status        ==============================
 router.put("/edit/:id", async function (req, res) {
   const { id } = req.params;
-  const {name, email, role_groups, groupName, status} = req.body;
+  const { name, email, role_groups, groupName, status } = req.body;
 
   try {
-    const updateStatus = await USERC.UpdateUserValues(id, status, "user_status");
+    const updateStatus = await USERC.UpdateUserValues(
+      id,
+      status,
+      "user_status"
+    );
     if (updateStatus) {
       const updateProfile = await USERC.UpdateProfileValues(id, name, email);
-      if (updateProfile){
+      if (updateProfile) {
         const username = await USERC.FetchUsername(id);
-        const updatePermission = await USERC.UpdatePermissions(role_groups, username);
-        if (updatePermission){
-          const updateGroup = await USERC.UpdateGroupTeamsAssignment(username, groupName);
-          if (updateGroup){
+        const updatePermission = await USERC.UpdatePermissions(
+          role_groups,
+          username
+        );
+        if (updatePermission) {
+          const updateGroup = await USERC.UpdateGroupTeamsAssignment(
+            username,
+            groupName
+          );
+          if (updateGroup) {
             res.status(200).json({ message: "User update successful" });
           }
         }
@@ -75,14 +132,16 @@ router.post("/edit/reset/:id", async function (req, res) {
 
   try {
     const data = await USERC.UpdateUserValues(id, hashPassword, RESET_ACTION);
-    res.status(200).json({ message: "Password Reset Successful. New password is 123456Aa$!" });
+    res.status(200).json({
+      message: "Password Reset Successful. New password is 123456Aa$!",
+    });
   } catch (err) {
     console.log("error from catching block", err);
     res.status(400).json(err);
   }
 });
 
-// 
+//
 
 //* ======================  @       GET ALL ROLE DATA       ==============================
 router.get("/checkroles", async function (req, res) {
@@ -156,7 +215,9 @@ router.get("/:id", async function (req, res) {
     const username = await USERC.FetchUsername(id);
     const profileData = await USERC.FetchProfileData(id);
     const groupData = await USERC.FetchGroupDetails(username);
-    const groupDetails = await USERC.FetchGroupTableDetails(groupData[0].group_name)
+    const groupDetails = await USERC.FetchGroupTableDetails(
+      groupData[0].group_name
+    );
     const roleData = await USERC.RoleGroupFetch(username);
     const userData = await USERC.FindUserDataID(id);
     const updatedData = {
@@ -166,6 +227,7 @@ router.get("/:id", async function (req, res) {
       ...groupDetails[0],
     };
     delete updatedData.password;
+    console.log("updatedData L192", updatedData);
     res.status(200).json(updatedData);
   } catch (error) {
     console.log("error from catch block", error);
@@ -174,11 +236,12 @@ router.get("/:id", async function (req, res) {
 });
 
 //* ======================    @     GET ALL USER       ==============================
-router.get("/", async function (req, res) {
+router.get("/", isAdmin, async function (req, res) {
   try {
     const data = await USERC.FindAllUser();
     res.status(200).json(data);
   } catch (err) {
+    console.log("err", err);
     res.status(400).json(err);
   }
 });
@@ -283,7 +346,6 @@ router.put("/edit/:ACTION/:ID", function (req, res) {
   }
 });
 
-
 //* ====================    @     Update Permissions       ==============================
 
 // router.post("/permissions/:id", async function (req, res) {
@@ -332,7 +394,5 @@ router.put("/edit/:ACTION/:ID", function (req, res) {
 //     res.status(400).json(err);
 //   }
 // });
-
-
 
 module.exports = router;

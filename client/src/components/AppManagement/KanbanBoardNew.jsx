@@ -99,6 +99,7 @@ function KanbanBoardNew({
       .post(`/api/app/kanban`, data)
       .then((res) => {
         // console.log("res", res.data)
+        toast.info(res.data.message);
       })
       .catch(function (error) {
         alert(error);
@@ -117,6 +118,9 @@ function KanbanBoardNew({
   };
 
   const handleCardMove = (_card, source, destination) => {
+    // console.log("source", source);
+    // console.log("_card", _card);
+    // console.log("destination", destination);
     const currentAppData = cardMove(_card.description.e.Task_App_Acronym);
     const difference = Math.abs(destination.toColumnId - source.fromColumnId);
     const updatedBoard = moveCard(controlledBoard, source, destination);
@@ -134,6 +138,9 @@ function KanbanBoardNew({
           taskID: _card.id,
           taskOwner: sessionData.username,
           taskState: "OPEN",
+          dateTime: new Date(),
+          previousTaskState: "TODO",
+          appAcronym: _card.description.e.Task_App_Acronym,
         });
       }
     } else if (destination.toColumnId === 2) {
@@ -147,10 +154,14 @@ function KanbanBoardNew({
         return;
       } else {
         setBoard(updatedBoard);
+
         handleQuery2({
           taskID: _card.id,
           taskOwner: sessionData.username,
           taskState: "TODO",
+          dateTime: new Date(),
+          previousTaskState: source.fromColumnId === 1 ? "OPEN" : "DOING",
+          appAcronym: _card.description.e.Task_App_Acronym,
         });
       }
     } else if (destination.toColumnId === 3) {
@@ -158,16 +169,27 @@ function KanbanBoardNew({
         currentAppData.App_permit_Doing,
         sessionData.role_groups
       );
-
-      if (!permission || difference > 1) {
+      if (!permission && difference > 1) {
         toast.error("You do not have enough permission to do that");
         return;
-      } else {
+      } 
+      
+      else if (
+        sessionData.role_groups.includes("Developer") &&
+        source.fromColumnId === 4
+      ) {
+        toast.error("You do not have enough permission to do that now");
+      }
+      
+      else {
         setBoard(updatedBoard);
         handleQuery2({
           taskID: _card.id,
           taskOwner: sessionData.username,
           taskState: "DOING",
+          dateTime: new Date(),
+          previousTaskState: source.fromColumnId === 2 ? "TODO" : "DONE",
+          appAcronym: _card.description.e.Task_App_Acronym,
         });
       }
     } else if (destination.toColumnId === 4) {
@@ -185,6 +207,9 @@ function KanbanBoardNew({
           taskID: _card.id,
           taskOwner: sessionData.username,
           taskState: "DONE",
+          dateTime: new Date(),
+          previousTaskState: "DOING",
+          appAcronym: _card.description.e.Task_App_Acronym,
         });
         handleEmail({
           userID: sessionData.user_id,

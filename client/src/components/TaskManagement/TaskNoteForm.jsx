@@ -78,7 +78,10 @@ function TaskNoteForm({
               name="noteMessage"
               required
               fullWidth
+              multiline
+              rows={5}
               id="note"
+              inputProps={{ maxLength: 250 }}
               label="Message"
               autoFocus
             />

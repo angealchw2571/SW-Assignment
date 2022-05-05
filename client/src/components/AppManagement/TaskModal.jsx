@@ -4,7 +4,6 @@ import { Button } from "@mui/material";
 const moment = require("moment");
 
 function TaskModal({ modalTaskData, handleCloseModalForm }) {
-
   const stateComponent = (state) => {
     if (state === "TODO") {
       return <Typography sx={{ color: "red" }}>{state}</Typography>;
@@ -31,7 +30,7 @@ function TaskModal({ modalTaskData, handleCloseModalForm }) {
       >
         <Button
           size="small"
-          onClick= {handleCloseModalForm}
+          onClick={handleCloseModalForm}
           sx={{
             float: "right",
             marginRight: 3,
@@ -50,13 +49,15 @@ function TaskModal({ modalTaskData, handleCloseModalForm }) {
         {modalTaskData.Task_notes.map((e, i) => {
           return (
             <div>
-              <Paper sx={{ py: 2 }}>
-                <Typography sx={{ pl: 4, display: "inline" }}>
-                  {e.note}
-                </Typography>
-                <div style={{ float: "right", paddingRight: 15 }}>
+              <Paper sx={{ py: 2, px:2 }}>
+                <div style={{ float: "right", paddingRight: 15,}}>
                   {stateComponent(e.currentState)}
                 </div>
+                <Typography
+                  sx={{ display: "inline", whiteSpace: "pre" }}
+                >
+                  {e.note}
+                </Typography>
 
                 <div>
                   <Typography

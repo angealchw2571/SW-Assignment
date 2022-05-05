@@ -36,8 +36,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 function UserTable({ userData, roleData, groupData, handleQuery }) {
   let navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
-  const [EditUserModal, setEditUserModal] = useState()
-  console.log("...", handleQuery)
+  const [EditUserModal, setEditUserModal] = useState();
   // const handleReFetch = handleQuery()
 
   const handleEdit = (e) => {
@@ -71,7 +70,7 @@ function UserTable({ userData, roleData, groupData, handleQuery }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {userData.map((e,i) => (
+            {userData.map((e, i) => (
               <StyledTableRow key={e.username}>
                 <StyledTableCell component="th" scope="row">
                   {e.username}
@@ -122,7 +121,10 @@ function UserTable({ userData, roleData, groupData, handleQuery }) {
                 <StyledTableCell align="center">
                   <div
                     style={{ fontSize: 20 }}
-                    onClick={()=> {handleOpen();setEditUserModal(userData[i])}}
+                    onClick={() => {
+                      handleOpen();
+                      setEditUserModal(userData[i]);
+                    }}
                     className="no-select"
                   >
                     ⚙️

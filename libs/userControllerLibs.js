@@ -125,7 +125,6 @@ function FindAllUser() {
         result.map((e)=> {
           e.role_groups = JSON.parse(e.role_groups)
         })
-        console.log("all users found");
         return resolve(result);
       }
     });

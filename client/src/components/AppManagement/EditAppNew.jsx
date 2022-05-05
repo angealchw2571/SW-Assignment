@@ -70,6 +70,7 @@ function CreateNewApp() {
         setPermissionForm(data);
         setGroupRoleArr(res3.data[0].group_team_assignment);
         setEditAppData(res3.data[0]);
+        setAppColor(res3.data[0].App_Color);
         setStartDate(res3.data[0].App_startDate);
         setEndDate(res3.data[0].App_endDate);
         setNetworkStatus("resolved");

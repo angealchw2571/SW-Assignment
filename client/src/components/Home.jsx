@@ -45,7 +45,6 @@ function Home() {
 
   return (
     <>
-      <h1>Home Page</h1>
       {networkStatus === "resolved" ? (
         <>
           <h3>Profile Details</h3>

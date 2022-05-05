@@ -1,28 +1,20 @@
 import { useAtom } from "jotai";
+import { userSessionAtom } from './components/LoginPage';
 import LoginPage from "./components/LoginPage";
 import Home from "./components/Home";
-import UserManagement from "./components/UserManagement/UserManagement";
 import EditPassword from "./components/UserManagement/EditPassword";
 import UpdateProfile from "./components/UserManagement/UpdateProfile";
-// import User from "./components/UserManagement/User";
-// import NewUser from "./components/UserManagement/NewUser";
-import NewRole from "./components/UserManagement/NewRole";
 import Error from "./components/Error";
 import Status from "./components/UserManagement/Status";
-// import NavBar from "./components/NavBar";
-import { userSessionAtom } from './components/LoginPage';
 import { BrowserRouter, Navigate } from "react-router-dom";
 import { Route, Routes } from "react-router";
 import ResetPassword from "./components/UserManagement/ResetPassword";
 import UpdatePermissions from "./components/UserManagement/UpdatePermissions";
 import Authentication from "./components/Authentication";
-import AppHome from "./components/AppManagement/views/AppHome";
 import IndividualApp from "./components/AppManagement/views/IndividualApp";
 import CreateApp from "./components/AppManagement/CreateApp";
-import EditApp from "./components/AppManagement/views/EditApp";
 import IndividualTask from "./components/TaskManagement/IndividualTask";
 import NewTask from "./components/TaskManagement/NewTask";
-import NewGroup from "./components/UserManagement/NewGroup";
 import { ToastContainer } from "react-toastify";
 import TestToast from "./components/TestToast"
 import NavBarNew from "./components/NavBarNew"

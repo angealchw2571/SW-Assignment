@@ -145,48 +145,54 @@ function IndividualApp() {
                     </div>
                   </Grid>
                 </Grid>
-                <Box sx={{ width: 700, mt: 10 }}>
-                  <Typography variant="h6">Plans</Typography>
-                  {planData
-                    .map((e, i) => {
-                      return (
-                        <Accordion>
-                          <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="panel1a-content"
-                            id="panel1a-header"
-                          >
-                            <Typography>{e.Plan_MVP_name}</Typography>
-                          </AccordionSummary>
-                          <AccordionDetails>
-                            <Typography>
-                              Description: {e.Plan_description}
-                            </Typography>
-                            <div
-                              style={{
-                                position: "absolute",
-                                right: 25,
-                                bottom: 10,
-                              }}
+                {planData.length > 0 ? (
+                  <Box sx={{ width: 700, mt: 10 }}>
+                    <Typography variant="h6">Plans</Typography>
+                    {planData
+                      .map((e, i) => {
+                        return (
+                          <Accordion>
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls="panel1a-content"
+                              id="panel1a-header"
                             >
-                              <Typography
-                                sx={{ fontSize: 12, textAlign: "right" }}
-                              >
-                                Start Date:
-                                {moment(e.Plan_startDate).format(
-                                  "DD-MMM-YYYY"
-                                )}{" "}
-                                <br />
-                                End Date:
-                                {moment(e.Plan_endDate).format("DD-MMM-YYYY")}
+                              <Typography>{e.Plan_MVP_name}</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              <Typography>
+                                Description: {e.Plan_description}
                               </Typography>
-                            </div>
-                          </AccordionDetails>
-                        </Accordion>
-                      );
-                    })
-                    .reverse()}
-                </Box>
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  right: 25,
+                                  bottom: 10,
+                                }}
+                              >
+                                <Typography
+                                  sx={{ fontSize: 12, textAlign: "right" }}
+                                >
+                                  Start Date:
+                                  {moment(e.Plan_startDate).format(
+                                    "DD-MMM-YYYY"
+                                  )}{" "}
+                                  <br />
+                                  End Date:
+                                  {moment(e.Plan_endDate).format("DD-MMM-YYYY")}
+                                </Typography>
+                              </div>
+                            </AccordionDetails>
+                          </Accordion>
+                        );
+                      })
+                      .reverse()}
+                  </Box>
+                ) : (
+                  <div style={{ marginTop: 50 }}>
+                    <h2>No plans available</h2>
+                  </div>
+                )}
               </Grid>
             </Paper>
           </Grid>
