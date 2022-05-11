@@ -38,63 +38,6 @@ const isAdmin = async (req, res, next) => {
       .json({ message: "Sorry you are not authorised to perform this action" });
   }
 
-  // try {
-  //   if (req.cookies.JWT) {
-  //     const result = await JWTFunction.validateJWT(req.cookies.JWT);
-  //     if (result) {
-  //       const roleGroup = await USERC.RoleGroupFetch(result.username);
-  //       const checkRoleResult = await USERC.CheckRole(
-  //         roleGroup[0].role_groups,
-  //         "Admin"
-  //       );
-  //       if (checkRoleResult) {
-  //         next();
-  //       } else {
-  //         res.status(400).json({
-  //           message: "Sorry you are not authorised to perform this action ",
-  //         });
-  //       }
-  //     } else {
-  //       res.status(400).json({
-  //         message: "Sorry you are not authorised to perform this action ",
-  //       });
-  //     }
-  //   } else if (req.headers.authorization) {
-  //     const authheader = req.headers.authorization;
-  //     const auth = new Buffer.from(authheader.split(" ")[1], "base64")
-  //       .toString()
-  //       .split(":");
-  //     const username = auth[0];
-  //     const password = auth[1];
-  //     const result = await USERC.FindUserData(username);
-  //     if (result) {
-  //       const passwordCheck = await USERC.CheckPassword(username, password);
-  //       if (passwordCheck) {
-  //         const roleGroup = await USERC.RoleGroupFetch(result[0].username);
-  //         const checkRoleResult = await USERC.CheckRole(
-  //           roleGroup[0].role_groups,
-  //           "Admin"
-  //         );
-  //         if (checkRoleResult) {
-  //           next();
-  //         } else {
-  //           res.status(400).json({
-  //             message: "Sorry you are not authorised to perform this action ",
-  //           });
-  //         }
-  //       } else {
-  //         res.status(400).json({ message: "Incorrect password" });
-  //       }
-  //     } else {
-  //       res.status(400).json({ message: "Sorry user not found" });
-  //     }
-  //   }
-  // } catch (err) {
-  //   console.log("isAdmin err", err);
-  //   res
-  //     .status(400)
-  //     .json({ message: "Sorry you are not authorised to perform this action" });
-  // }
 };
 
 const authorisationFunc = async (JWT, authheader) => {
@@ -226,6 +169,7 @@ router.get("/task/:state", isAdmin, async function (req, res) {
     res.status(400).json(err);
   }
 });
+
 //* ======================    @     GET ALL TASKS with AppAcronym       ==============================
 router.get("/tasks/:appAcronym", async function (req, res) {
   const { appAcronym } = req.params;
@@ -270,7 +214,6 @@ router.post("/kanban", async function (req, res) {
   const data = req.body;
   const authResult = await authorisationFunc(req.cookies.JWT, req.headers.authorization);
   const validationResult = await validateAppPermission(data.appAcronym, authResult, data.taskState );
-  console.log("validation result L275", validationResult);
 
   if (validationResult) {
     try {
@@ -556,7 +499,6 @@ router.get("/appgroups/:appAcronym", async function (req, res) {
 
 //! ======================    @     Email route   ==============================
 router.post("/appgroups/email", async function (req, res) {
-  console.log("hit here");
   const { userID, groupName } = req.body;
   const roleName = "Project Lead";
   let package = [];
@@ -571,7 +513,6 @@ router.post("/appgroups/email", async function (req, res) {
           package.push(allUsers[i]);
           const leadData = await USERC.FetchProfileData(allUsers[i].user_id);
           const devData = await USERC.FetchProfileData(userID);
-          console.log("hit hereee");
           EMAILC.SendDoneEmail(devData.email, leadData.email);
         }
       }

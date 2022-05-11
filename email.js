@@ -31,7 +31,7 @@ function SendDoneEmail(devEmail, leadEmail) {
         from: `${devEmail}`,
         to: `${leadEmail}`,
         subject: "Finished Task",
-        text: "Hello i finished the task",
+        text: "I have completed the task",
       };
       
     return new Promise((resolve, reject) => {

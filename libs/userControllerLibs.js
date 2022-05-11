@@ -239,7 +239,6 @@ function CheckRole(role_groups, role_name) {
 
 //! =============================         fetch role from roles table with single username     ========================
 function RoleGroupFetch(username) {
-  // console.log("username", username)
   return new Promise((resolve, reject) => {
     connection.query(
       "SELECT role_groups FROM permissions WHERE username = ? && permission_status ='1' ;",
@@ -514,6 +513,17 @@ function UpdateGroupTeamsAssignment(username, groupName) {
   });
 }
 
+//todo =============================  checkGroup v2  =============================
+async function CheckGroupV2(username, role_name) {
+    const roleGroupResult = await RoleGroupFetch(username)
+    // console.log("roleGroupResult", roleGroupResult[0].role_groups)
+    const filterResult =  roleGroupResult[0].role_groups.filter(e => e === role_name)
+    // console.log("filterResult", filterResult)
+    if (filterResult.length > 0) return true
+    else return false 
+
+}
+
 
 
 module.exports = {
@@ -543,4 +553,5 @@ module.exports = {
   UpdateGroupTeamsAssignment,
   FetchAllUsersWithGroup,
   FetchGroupTableDetails,
+  CheckGroupV2,
 };

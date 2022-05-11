@@ -1,0 +1,45 @@
+curl -u "test:123456Aa$!" http://localhost:3001/api/a3/v1/taskstate?state=DOING
+
+curl -u "test:12345e6Aa$!" http://localhost:3001/api/a3/v1/taskstate?state=TODO
+
+curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "appAcronym=ALP&taskName=Stuck on login&taskDescription=Invalid Credentials" -u "test:123456Aa$!" http://localhost:3001/api/a3/v1/createtask 
+
+curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "taskID=ALP_5" -u "test:123456Aa$!" http://localhost:3001/api/a3/v1/promote/todo_to_done
+
+
+
+
+
+
+
+
+curl  -H "Content-Type: application/json" -u "test:123456Aa$!"  -d '{"appAcronym":"ALP", "taskName":"Issue with software", "taskDescription":"Software has problem"}'  http://localhost:3001/api/a3/v1/createtask 
+
+curl -H "Content-Type: application/json" -d "{\"appAcronym\":\"ALP\", \"taskName\":\"Issue with software\", \"taskDescription\":\"Software has problem\"}" -u "test:123456Aa$!" -X POST http://localhost:3001/api/a3/v1/createtask 
+
+curl -g -X POST -H "Content-Type: application/json" -d {
+  "appAcronym": "ALP",
+  "taskName": "Issue with software",
+  "taskDescription": "Software has problem"
+}' -u "test:123456Aa$!" http://localhost:3001/api/a3/v1/createtask 
+
+
+
+
+POST /api/a3/v1/createtask
+Host: http://localhost:3001
+Authorization: Basic 
+Content-Type: application/json
+Accept: application/json
+Accept-Charset: utf-8
+
+{
+	"appAcronym":"ALP", 
+	"taskName":"Issue with software", 
+	"taskDescription":"Software has problems"
+}
+
+
+
+
+

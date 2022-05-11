@@ -7,6 +7,7 @@ const session = require("express-session");
 const userController = require("./controllers/user_controller");
 const sessionController = require("./controllers/session_controller");
 const appController = require("./controllers/app_controller");
+const a3Controller = require("./controllers/assignment3_controller");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const JWTFunction = require("./libs/jwtLib");
@@ -42,9 +43,10 @@ app.use(
 const authorisationFunc = async (JWT, authheader) => {
   if (JWT) {
     const result = JWTFunction.validateJWT(JWT);
-    console.log("from jwt")
+    console.log("auth from jwt");
     return result;
   } else if (authheader) {
+    console.log("auth from basic auth");
     const auth = new Buffer.from(authheader.split(" ")[1], "base64")
       .toString()
       .split(":");
@@ -54,7 +56,6 @@ const authorisationFunc = async (JWT, authheader) => {
     if (result) {
       const passwordCheck = await USERC.CheckPassword(username, password);
       if (passwordCheck) {
-        console.log("from basic auth")
         return result[0];
       } else {
         return "PASSWORD";
@@ -66,24 +67,30 @@ const authorisationFunc = async (JWT, authheader) => {
     return false;
   }
 };
-const isAuth = async (req, res, next) => {
-try {
-const authResult = await authorisationFunc(req.cookies.JWT, req.headers.authorization)
-if (authResult === "PASSWORD") res.status(400).json({message: "Incorrect password"})
-else if (authResult === "USER") res.status(400).json({message: "User not found"})
-else if (authResult.username === undefined) res.status(400).json({message:"Sorry you are not logged in"})
-else next()
-}
- catch (err){
-  res.status(400).json({message:"Sorry you are not logged in"})
- }
 
-}
+const isAuth = async (req, res, next) => {
+  try {
+    const authResult = await authorisationFunc(
+      req.cookies.JWT,
+      req.headers.authorization
+    );
+    if (authResult === "PASSWORD")
+      res.status(400).json({ message: "Invalid Login Credentials (CODE 43183)" });
+    else if (authResult === "USER")
+      res.status(400).json({ message: "Invalid Login Credentials  (CODE FD14S)" });
+    else if (authResult.username === undefined)
+      res.status(400).json({ message: "Sorry you are not logged in" });
+    else next();
+  } catch (err) {
+    res.status(400).json({ message: "Sorry you are not logged in" });
+  }
+};
 
 //? =========================    Controllers    =========================
 
 app.use("/api/session", sessionController);
-app.use(isAuth);//! middleware to authenticate before userRoutes & appRoutes
+app.use(isAuth); //! middleware to authenticate before userRoutes & appRoutes
+app.use("/api/a3/v1", a3Controller);
 app.use("/api/user", userController);
 app.use("/api/app", appController);
 

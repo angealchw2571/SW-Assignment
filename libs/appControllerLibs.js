@@ -71,6 +71,7 @@ function FetchAllTask() {
     });
   });
 }
+
 function FetchTasksInState(state) {
   return new Promise((resolve, reject) => {
     connection.query(
@@ -336,10 +337,10 @@ function CreateNewTask(
       (err, result) => {
         if (err) {
           console.log(">>", err);
-          return reject(err);
+          return resolve(false);
         } else {
           console.log("create task success");
-          return resolve(result);
+          return resolve(true);
         }
       }
     );
@@ -508,9 +509,9 @@ function AddTaskNotes(newTaskNotes, task_id) {
     connection.query(sqlQuery, [jsonNewTaskNotes, task_id], (err, result) => {
       if (err) {
         console.log(">>", err);
-        return reject(err);
+        return resolve(false);
       } else {
-        return resolve(result);
+        return resolve(true);
       }
     });
   });
@@ -538,9 +539,9 @@ function UpdateRnumber(app_acronym, Rnumber) {
     connection.query(sqlQuery, [Rnumber, app_acronym], (err, result) => {
       if (err) {
         console.log(">>", err);
-        return reject(err);
+        return resolve(false);
       } else {
-        return resolve(result[0]);
+        return resolve(true);
       }
     });
   });
@@ -558,7 +559,24 @@ function UpdateTask(task_id, taskState, taskOwner) {
       (err, result) => {
         if (err) {
           console.log(">>", err);
-          return reject(err);
+          return resolve(false);
+        } else {
+          return resolve(true);
+        }
+      }
+    );
+  });
+}
+function FetchGroupName(username) {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = `SELECT group_name FROM group_teams_assignment WHERE username = ?`;
+    connection.query(
+      sqlQuery,
+      [username],
+      (err, result) => {
+        if (err) {
+          console.log(">>", err);
+          return resolve(false);
         } else {
           return resolve(result);
         }
@@ -592,4 +610,5 @@ module.exports = {
   FetchGroupColor,
   FetchPlanApp,
   FetchTasksInState,
+  FetchGroupName,
 };

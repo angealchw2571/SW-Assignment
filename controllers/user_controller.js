@@ -260,7 +260,6 @@ router.get("/checkgroup/:roleName", async function (req, res) {
         package.push(allUsers[i]);
       }
     }
-    console.log("package", package);
     res.status(200).json(package);
   } catch (error) {
     console.log("error from catch block", error);
