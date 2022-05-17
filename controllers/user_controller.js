@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const USERC = require("../libs/userControllerLibs.js");
 const JWTFunction = require("../libs/jwtLib");
 

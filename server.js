@@ -16,6 +16,7 @@ const USERC = require("./libs/userControllerLibs.js");
 //? =========================    Config    =========================
 const PORT = process.env.PORT ?? 3001;
 const connection = mysql.createConnection({
+  // host: "host.docker.internal",
   host: "localhost",
   user: "root",
   password: process.env.MYSQL_PW,
@@ -79,13 +80,15 @@ const isAuth = async (req, res, next) => {
     else if (authResult === "USER")
       res.status(400).json({ message: "Invalid Login Credentials  (CODE FD14S)" });
     else if (authResult.username === undefined)
-      res.status(400).json({ message: "Sorry you are not logged in" });
+      res.status(400).json({ message: "Sorry you are not logged in (ERR 323SW111)" });
     else next();
   } catch (err) {
-    res.status(400).json({ message: "Sorry you are not logged in" });
+    res.status(400).json({ message: "Sorry you are not logged in (ERR 22IK8)" });
   }
 };
 
+const testing = process.env.MYSQL_PW
+console.log("checking here", testing)
 //? =========================    Controllers    =========================
 
 app.use("/api/session", sessionController);

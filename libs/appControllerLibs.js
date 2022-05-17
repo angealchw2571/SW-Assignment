@@ -2,6 +2,7 @@ const mysql = require("mysql");
 const moment = require("moment");
 
 const connection = mysql.createConnection({
+  // host: "host.docker.internal",
   host: "localhost",
   user: "root",
   password: process.env.MYSQL_PW,

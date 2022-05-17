@@ -64,7 +64,7 @@ const authorisationFunc = async (JWT, authheader) => {
 };
 
 //? ========  Assignment 3         ==========    @     GET tasks  In certain state       ==============================
-router.get("/taskstate", isAdmin, async function (req, res) {
+router.get("/taskstate",isAdmin , async function (req, res) {
   const { state } = req.query;
   const stateOptions = ["OPEN", "TODO", "DOING", "DONE"];
 
