@@ -4,10 +4,10 @@ services:
   mycustomapp:
     container_name: mycustomapp
     restart: always
-    image: 2569dad25f04
+    image: 2d0ff3c99185
     environment:
       MYSQL_PW: "${MYSQL_PW}"
       SESSION_SECRET: "${SESSION_SECRET}"
       JWT_SECRET: "${JWT_SECRET}"
     ports:
-      - "3002:3001"
+      - "3002:${PORT}"

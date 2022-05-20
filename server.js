@@ -16,8 +16,8 @@ const USERC = require("./libs/userControllerLibs.js");
 //? =========================    Config    =========================
 const PORT = process.env.PORT ?? 3001;
 const connection = mysql.createConnection({
-  // host: "host.docker.internal",
-  host: "localhost",
+  host: "host.docker.internal",
+  // host: "localhost",
   user: "root",
   password: process.env.MYSQL_PW,
   database: "assignment_db",
@@ -89,6 +89,7 @@ const isAuth = async (req, res, next) => {
 
 const testing = process.env.MYSQL_PW
 console.log("checking here", testing)
+console.log("port", process.env.PORT)
 //? =========================    Controllers    =========================
 
 app.use("/api/session", sessionController);

@@ -2,8 +2,8 @@ const bcrypt = require("bcryptjs");
 const mysql = require("mysql");
              
 const connection = mysql.createConnection({
-  // host: "host.docker.internal",
-  host: "localhost",
+  host: "host.docker.internal",
+  // host: "localhost",
   user: "root",
   password: process.env.MYSQL_PW,
   database: "assignment_db",
