@@ -1,3 +1,6 @@
+
+// depreciated file, for reference only
+
 import Board, { moveCard } from "@asseinfo/react-kanban";
 import Button from "@mui/material/Button";
 import "@asseinfo/react-kanban/dist/styles.css";
