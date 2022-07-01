@@ -1,4 +1,5 @@
-// decpreciated file, for reference only
+
+// depreciated file, for reference only
 
 
 import { React, useEffect, useState } from "react";
